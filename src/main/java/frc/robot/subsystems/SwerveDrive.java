@@ -30,7 +30,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   private final SwerveModule backLeft = new SwerveModule(Constants.SwerveBase.DRIVEBACKLEFT, Constants.SwerveBase.ROTATIONBACKLEFT, Constants.SwerveBase.ENCODERBACKLEFT, -45); 
   private final SwerveModule backRight = new SwerveModule(Constants.SwerveBase.DRIVEBACKRIGHT, Constants.SwerveBase.ROTATIONBACKRIGHT, Constants.SwerveBase.ENCODERBACKRIGHT, 45); 
   //Our gyro (used to determine robot heading)
-  private final AHRS gyro = null; // = new AHRS(SPI.Port.kMXP); Causing exception
+  private final AHRS gyro = new AHRS(SPI.Port.kMXP); // = new AHRS(SPI.Port.kMXP); Causing exception
 
   private final SwerveDriveOdometry odometry = 
           new SwerveDriveOdometry(Constants.SwerveBase.KINEMATICS, gyro.getRotation2d(), getSwerveModulePositions()); 
@@ -51,7 +51,10 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
 
   @Override
   public void periodic() {
-    updateOdometry();
+    updateOdometry(); 
+
+    SmartDashboard.putNumber("distance x",odometry.getPoseMeters().getX()); 
+    SmartDashboard.putNumber("distance y",odometry.getPoseMeters().getY());
   }
 
   public void drive(double xPercent, double yPercent, double rotationPercent){ 
