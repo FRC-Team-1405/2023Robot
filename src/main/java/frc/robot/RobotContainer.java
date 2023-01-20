@@ -54,6 +54,9 @@ public class RobotContainer {
 
     m_driverController.a().whileTrue( new InstantCommand( arm::closedClaw, arm) );
     m_driverController.b().whileTrue( new InstantCommand( arm::openClaw, arm) );
+
+    m_driverController.y().onTrue( new InstantCommand( () -> { arm.setPosition(Arm.Position.Home);}, arm));
+    m_driverController.x().onFalse( new InstantCommand( () -> { arm.setPosition(Arm.Position.High);}, arm));
   }
 
   /**

@@ -25,10 +25,10 @@ public final class Constants {
 
   public static class Arm {
     public static class ElbowPosition {
-      public static final int Home = 0;
-      public static final int Low = 1;
-      public static final int Medium = 2;
-      public static final int High = 3;
+      public static final int Home = 500;
+      public static final int Low = 750;
+      public static final int Medium = 1000;
+      public static final int High = 1250;
     }
   }
 }
