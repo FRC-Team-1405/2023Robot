@@ -20,7 +20,7 @@ public final class Constants {
   public static class DeviceID {
     public static final int ClawOpen = 0;
     public static final int ClawClosed = 1;
-    public static final int Elbow = 6;
+    public static final int Elbow = 11;
   } 
 
   public static class Arm {

@@ -15,10 +15,16 @@ import frc.robot.Constants;
 
 public class Arm extends SubsystemBase {
   /** Creates a new Arm. */
-  public Arm() {}
+  public Arm() {
+   armSensorPosition =(int) elbow.getSelectedSensorPosition();
+  }
 
   @Override
   public void periodic() {
+    if (armIsMoving){
+      int pos = (int)elbow.getSelectedSensorPosition();
+      
+    }
     // This method will be called once per scheduler run
   }
 
@@ -35,6 +41,8 @@ public class Arm extends SubsystemBase {
 
   private WPI_TalonSRX elbow = new WPI_TalonSRX(Constants.DeviceID.Elbow);
   private Position position = Position.Home;
+  private int armSensorPosition;
+  private boolean armIsMoving = false;
 
   public void openClaw() {
     claw.set(Value.kForward);
@@ -59,5 +67,6 @@ public class Arm extends SubsystemBase {
         elbow.set(ControlMode.MotionMagic, Constants.Arm.ElbowPosition.High);
         break;
     }
+    armIsMoving = true;
   }
 }
