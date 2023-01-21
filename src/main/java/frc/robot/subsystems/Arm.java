@@ -45,11 +45,11 @@ public class Arm extends SubsystemBase {
   private boolean armIsMoving = false;
 
   public void openClaw() {
-    claw.set(Value.kForward);
+    claw.set(Value.kReverse);
   }
 
   public void closedClaw() {
-    claw.set(Value.kReverse);
+    claw.set(Value.kForward);
   }
 
   public void setPosition(Position position){
