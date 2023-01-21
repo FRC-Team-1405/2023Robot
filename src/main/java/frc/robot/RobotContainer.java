@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.MoveArm;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -55,8 +56,9 @@ public class RobotContainer {
     m_driverController.a().onTrue( new InstantCommand( arm::closedClaw, arm) );
     m_driverController.b().onTrue( new InstantCommand( arm::openClaw, arm) );
 
-    m_driverController.y().onTrue( new InstantCommand( () -> { arm.setPosition(Arm.Position.Home);}, arm));
-    m_driverController.x().onFalse( new InstantCommand( () -> { arm.setPosition(Arm.Position.High);}, arm));
+    m_driverController.y().onTrue( new MoveArm(arm, Arm.Position.High)
+                                  .andThen(new MoveArm(arm, Arm.Position.Medium)) );
+    m_driverController.x().onTrue( new MoveArm(arm, Arm.Position.Home));
   }
 
   /**

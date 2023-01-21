@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -12,19 +13,15 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.tools.MagicMotionHelper;
 
 public class Arm extends SubsystemBase {
   /** Creates a new Arm. */
   public Arm() {
-   armSensorPosition =(int) elbow.getSelectedSensorPosition();
   }
 
   @Override
   public void periodic() {
-    if (armIsMoving){
-      int pos = (int)elbow.getSelectedSensorPosition();
-      
-    }
     // This method will be called once per scheduler run
   }
 
@@ -39,11 +36,7 @@ public class Arm extends SubsystemBase {
                                                     Constants.DeviceID.ClawOpen, 
                                                     Constants.DeviceID.ClawClosed);
 
-  private WPI_TalonSRX elbow = new WPI_TalonSRX(Constants.DeviceID.Elbow);
-  private Position position = Position.Home;
-  private int armSensorPosition;
-  private boolean armIsMoving = false;
-
+  private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 50.0, 3);
   public void openClaw() {
     claw.set(Value.kReverse);
   }
@@ -55,18 +48,21 @@ public class Arm extends SubsystemBase {
   public void setPosition(Position position){
     switch (position){
       case Home: 
-        elbow.set(ControlMode.MotionMagic, Constants.Arm.ElbowPosition.Home);
+        elbow.setPosition(Constants.Arm.ElbowPosition.Home);
         break;
       case Low: 
-        elbow.set(ControlMode.MotionMagic, Constants.Arm.ElbowPosition.Low);
+        elbow.setPosition(Constants.Arm.ElbowPosition.Low);
         break;
       case Medium:
-        elbow.set(ControlMode.MotionMagic, Constants.Arm.ElbowPosition.Medium);
+        elbow.setPosition(Constants.Arm.ElbowPosition.Medium);
         break;
       case High:
-        elbow.set(ControlMode.MotionMagic, Constants.Arm.ElbowPosition.High);
+        elbow.setPosition(Constants.Arm.ElbowPosition.High);
         break;
     }
-    armIsMoving = true;
+  }
+
+  public boolean atPosition(){
+    return elbow.atPosition();
   }
 }
