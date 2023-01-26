@@ -48,16 +48,16 @@ public class Arm extends SubsystemBase {
   public void setPosition(Position position){
     switch (position){
       case Home: 
-        elbow.setPosition(Constants.Arm.ElbowPosition.Home);
+        elbow.setPosition(Constants.Arm.Home_Elbow);
         break;
       case Low: 
-        elbow.setPosition(Constants.Arm.ElbowPosition.Low);
+        elbow.setPosition(Constants.Arm.Low_Elbow);
         break;
       case Medium:
-        elbow.setPosition(Constants.Arm.ElbowPosition.Medium);
+        elbow.setPosition(Constants.Arm.Medium_Elbow);
         break;
       case High:
-        elbow.setPosition(Constants.Arm.ElbowPosition.High);
+        elbow.setPosition(Constants.Arm.High_Elbow);
         break;
     }
   }

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Preferences;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -24,11 +26,30 @@ public final class Constants {
   } 
 
   public static class Arm {
-    public static class ElbowPosition {
-      public static final int Home = 500;
-      public static final int Low = 750;
-      public static final int Medium = 1000;
-      public static final int High = 1250;
-    }
+      static {
+        Preferences.initInt("Arm/Home/Elbow", 750);
+        Home_Elbow = Preferences.getInt("Arm/Home/Elbow", 750);
+        
+        Preferences.initInt("Arm/Low/Elbow", 750);
+        Low_Elbow = Preferences.getInt("Arm/Low/Elbow", 750);
+        
+        Preferences.initInt("Arm/Home/Elbow", 1000);
+        Medium_Elbow = Preferences.getInt("Arm/Medium/Elbow", 1000);
+
+        Preferences.initInt("Arm/Home/Elbow", 1250);
+        High_Elbow = Preferences.getInt("Arm/High/Elbow", 1250);
+
+        Preferences.initDouble("Arm/Threshold/Elbow", 50.0);
+        Threshold_Elbow = Preferences.getDouble("Arm/Threshold/Elbow", 50.0);
+
+        Preferences.initInt("Arm/Settle/Elbow", 3);
+        Settle_Elbow = Preferences.getInt("Arm/Settle/Elbow", 3); 
+      }
+      public static final int Home_Elbow;
+      public static final int Low_Elbow;
+      public static final int Medium_Elbow;
+      public static final int High_Elbow;
+      public static final double Threshold_Elbow;
+      public static final int Settle_Elbow;
   }
 }
