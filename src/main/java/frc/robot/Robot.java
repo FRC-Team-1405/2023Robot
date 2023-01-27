@@ -32,8 +32,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     Date date = new Date();
-    String filename = String.format("%s/Log-%s.bag",
-                                    "/Users/Chris/Documents/source/repo/2023Robot/tmp",
+    String filename = String.format("%s/Log_%s.bag",
+                                    "/home/lvuser/log",
                                     new SimpleDateFormat("yyyyMMddHHmm'.txt'").format(date));
     badlog = BadLog.init(filename);
 
