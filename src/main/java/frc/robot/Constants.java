@@ -21,14 +21,23 @@ public final class Constants {
     public static final int ClawOpen = 0;
     public static final int ClawClosed = 1;
     public static final int Elbow = 11;
+    public static final int Extension = 12;
   } 
 
   public static class Arm {
     public static class ElbowPosition {
-      public static final int Home = 500;
-      public static final int Low = 750;
-      public static final int Medium = 1000;
-      public static final int High = 1250;
+      public static final int elbowHome = 500;
+      public static final int elbowLow = 750;
+      public static final int elbowMedium = 1000;
+      public static final int elbowHigh = 1250;
+    }
+  }
+  public static class Extension{
+    public static class ExtensionPosition {
+      public static final int extensionHome = 0;
+      public static final int extensionLow = 0;
+      public static final int extensionMedium = 0;
+      public static final int extensionHigh = 0;
     }
   }
 }

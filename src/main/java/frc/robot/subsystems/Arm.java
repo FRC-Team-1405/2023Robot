@@ -37,32 +37,57 @@ public class Arm extends SubsystemBase {
                                                     Constants.DeviceID.ClawClosed);
 
   private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 50.0, 3);
+  private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 50.0, 3);
+
   public void openClaw() {
     claw.set(Value.kReverse);
   }
+
+ 
 
   public void closedClaw() {
     claw.set(Value.kForward);
   }
 
-  public void setPosition(Position position){
+  public void setElbowPosition(Position position){
     switch (position){
       case Home: 
-        elbow.setPosition(Constants.Arm.ElbowPosition.Home);
+        elbow.setPosition(Constants.Arm.ElbowPosition.elbowHome);
         break;
       case Low: 
-        elbow.setPosition(Constants.Arm.ElbowPosition.Low);
+        elbow.setPosition(Constants.Arm.ElbowPosition.elbowLow);
         break;
       case Medium:
-        elbow.setPosition(Constants.Arm.ElbowPosition.Medium);
+        elbow.setPosition(Constants.Arm.ElbowPosition.elbowMedium);
         break;
       case High:
-        elbow.setPosition(Constants.Arm.ElbowPosition.High);
+        elbow.setPosition(Constants.Arm.ElbowPosition.elbowHigh);
         break;
     }
   }
 
-  public boolean atPosition(){
+  public void setExtensionPosition(Position position){
+    switch (position){
+      case Home: 
+        extension.setPosition(Constants.Extension.ExtensionPosition.extensionHome);
+        break;
+      case Low: 
+        extension.setPosition(Constants.Extension.ExtensionPosition.extensionLow);
+        break;
+      case Medium:
+        extension.setPosition(Constants.Extension.ExtensionPosition.extensionMedium);
+        break;
+      case High:
+        extension.setPosition(Constants.Extension.ExtensionPosition.extensionHigh);
+        break;
+    }
+  }
+
+  public boolean atElbowPosition(){
     return elbow.atPosition();
+  }
+
+  public boolean atExtensionPosition(){
+    return extension.atPosition();
   }
 }
