@@ -5,11 +5,18 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.MoveArm;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Intake;
+import frc.robot.commands.Autos;
+import frc.robot.commands.Balance;
+import frc.robot.commands.DriveToPitch;
+import frc.robot.commands.SwerveDriveCommand;
+import frc.robot.commands.TurnToAngle;
+import frc.robot.subsystems.SwerveDrive;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -20,18 +27,21 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
+  // The robot's subsystems and commands are defined here... 
+  private final SwerveDrive driveBase = new SwerveDrive();
   private final Arm arm = new Arm();
   private final Intake intake = new Intake();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController driver = new CommandXboxController(OperatorConstants.DriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+    driveBase.setDefaultCommand(new SwerveDriveCommand(this::getXSpeed, 
+                                                       this::getYSpeed, 
+                                                       this::getRotationSpeed, driveBase));
   }
 
   /**
@@ -44,23 +54,15 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-
-    m_driverController.a().onTrue( new InstantCommand( arm::closedClaw, arm));
-    m_driverController.b().onTrue( new InstantCommand( arm::openClaw, arm));
+    driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); })); 
     
-    /* 
-    m_driverController.x().onTrue(new InstantCommand(intake::intakeSuck, intake))
-                          .onFalse(new InstantCommand(intake::intakeOff, intake));
-    m_driverController.y().onTrue(new InstantCommand(intake::intakePush, intake))
-                          .onFalse(new InstantCommand(intake::intakeOff, intake));
-    */
-   m_driverController.y().onTrue( new MoveArm(arm, Arm.Position.High)
-                                  .andThen(new MoveArm(arm, Arm.Position.Medium)) );
-    m_driverController.x().onTrue( new MoveArm(arm, Arm.Position.Home)); 
+    driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
+
+    driver.a().whileTrue(new TurnToAngle(0.0, driveBase)); 
+    driver.y().onTrue(new SequentialCommandGroup(new DriveToPitch(driveBase), new WaitCommand(1.925),
+    new Balance(driveBase)));
   }
+  
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -69,6 +71,42 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return null;
+    return Autos.AutoBalance(driveBase);
   }
+  double getXSpeed(){ 
+    double finalX;
+    if (Math.abs(driver.getLeftY()) <= 0.1)
+      finalX = 0.0;
+    else
+      finalX = driver.getLeftY() * 0.5 * (1.0 + driver.getLeftTriggerAxis());
+    
+    return -finalX;
+  }
+
+  public double getYSpeed(){ 
+    double finalY;
+    if (Math.abs(driver.getLeftX()) <= 0.1)
+      finalY = 0.0;
+    else
+      finalY = driver.getLeftX() * 0.5 * (1.0 + driver.getLeftTriggerAxis());
+    
+    return finalY;
+  } 
+  
+  public double getRotationSpeed(){ 
+    double finalRotation;
+
+    // if (Math.abs(driver.getRightX()) <= 0.1)
+    //   finalRotation = Math.abs(operator.getRightX()) <= 0.1 ? 0.0 : operator.getRightX() * .5 / (1.0 + operator.getRightTriggerAxis());
+    // else
+      finalRotation = driver.getRightX() * .5 / (1.0 + driver.getRightTriggerAxis());
+
+      if (Math.abs(finalRotation) < 0.1)
+        finalRotation = 0.0;
+    
+    return finalRotation;
+  }
+
 }
+
+
