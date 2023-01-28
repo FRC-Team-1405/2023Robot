@@ -20,12 +20,12 @@ public class MoveArm extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    arm.setPosition(position);
+    arm.setElbowPosition(position);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return arm.atPosition();
+    return arm.atElbowPosition();
   }
 }
