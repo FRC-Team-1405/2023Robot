@@ -5,6 +5,7 @@ package frc.robot.subsystems;
 
 //CTRE deps
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.CANCoder;
 //WPILIB deps
@@ -88,7 +89,7 @@ public class SwerveModule extends SubsystemBase {
   }
   /** Allows us to command the swervemodule to any given veloctiy and angle, ultimately coming from our
   joystick inputs. */
-  public void setDesiredState(SwerveModuleState desiredState) {
+  public void setDesiredState(SwerveModuleState desiredState, boolean brakeMode) {
       normalizeWheels = normalizeWheels.execute(this);
       if (normalizeWheels != NormalizeWheels.Ready)
         return;
@@ -117,7 +118,11 @@ public class SwerveModule extends SubsystemBase {
       final double target = AngleToEncoder(absolute + delta);
       
       if(driveSpeed == 0.0){ 
-        steeringMotor.set(ControlMode.PercentOutput, 0.0);
+        if (brakeMode == true){ 
+          steeringMotor.set(ControlMode.MotionMagic, AngleToEncoder(-45)); 
+        } else {
+          steeringMotor.set(ControlMode.PercentOutput, 0.0);
+        }
         driveMotor.set(ControlMode.PercentOutput, 0.0);   
       } else {
         steeringMotor.set(ControlMode.MotionMagic, target); 
@@ -172,5 +177,11 @@ public class SwerveModule extends SubsystemBase {
     double delta = Math.abs(current - distance);
     distance = current;
     return delta;
-  }
+  } 
+
+  public void brakeMode(){ 
+    driveMotor.setNeutralMode(NeutralMode.Brake);
+  } 
+
+  
 }

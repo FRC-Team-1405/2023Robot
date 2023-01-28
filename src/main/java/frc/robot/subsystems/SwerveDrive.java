@@ -52,9 +52,10 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   @Override
   public void periodic() {
     updateOdometry(); 
-
+    SmartDashboard.putNumber("angle", gyro.getAngle()); 
+    SmartDashboard.putNumber("pitch", gyro.getPitch());
     SmartDashboard.putNumber("distance x",odometry.getPoseMeters().getX()); 
-    SmartDashboard.putNumber("distance y",odometry.getPoseMeters().getY());
+    SmartDashboard.putNumber("distance y",odometry.getPoseMeters().getY()); 
   }
 
   public void drive(double xPercent, double yPercent, double rotationPercent){ 
@@ -62,7 +63,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   } 
 
   public void driveSpeed(double xSpeed, double ySpeed, double rotationSpeed, boolean fieldOriented){
-    // SmartDashboard.putNumber("DriveTo/Speed/x", xSpeed);
+     SmartDashboard.putNumber("DriveTo/Speed/x", xSpeed);
     // SmartDashboard.putNumber("DriveTo/Speed/y", ySpeed);
     // SmartDashboard.putNumber("DriveTo/Speed/z", rotationSpeed);
 
@@ -113,12 +114,11 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   } 
 
   public void setModuleStates(SwerveModuleState[] states){ 
-    frontLeft.setDesiredState(states[0]);
-    frontRight.setDesiredState(states[1]); 
-    backLeft.setDesiredState(states[2]);
-    backRight.setDesiredState(states[3]);
+    frontLeft.setDesiredState(states[0], parkingBrake);
+    frontRight.setDesiredState(states[1], parkingBrake); 
+    backLeft.setDesiredState(states[2], parkingBrake);
+    backRight.setDesiredState(states[3], parkingBrake);
   }
-
   public SwerveModulePosition[] getSwerveModulePositions() {
     return new SwerveModulePosition[] {
       frontLeft.getSwerveModulePosition(),
@@ -172,6 +172,21 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
     return 0.0 ;
 
   return gyro.getAngle();
+ } 
+
+ public double getPitch(){
+  return gyro.getPitch();
+ } 
+
+ public void brakeMode(){ 
+  frontLeft.brakeMode();
+  backLeft.brakeMode(); 
+  frontRight.brakeMode(); 
+  backRight.brakeMode();
+ } 
+ private boolean parkingBrake = true; 
+ public void parkingBrake(boolean enabled){ 
+  parkingBrake = enabled; 
  }
 
 }
