@@ -19,6 +19,12 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
+    elbowAtPosition = elbow.atPosition();
+    if (elbowAtPosition && !breakClosed) {
+      armBreak.set(Value.kForward);
+      elbow.stop();
+      breakClosed = true;
+    }
     // This method will be called once per scheduler run
   }
 
@@ -29,6 +35,9 @@ public class Arm extends SubsystemBase {
     High,
   }
 
+  private boolean elbowAtPosition = false;
+  private boolean breakClosed = false;
+
   private DoubleSolenoid claw = new DoubleSolenoid( PneumaticsModuleType.CTREPCM, 
                                                     Constants.PnuematicID.ClawOpen, 
                                                     Constants.PnuematicID.ClawClosed);
@@ -36,17 +45,22 @@ public class Arm extends SubsystemBase {
   private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 50.0, 3);
   private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 50.0, 3);
 
+  private DoubleSolenoid armBreak = new DoubleSolenoid( PneumaticsModuleType.CTREPCM,
+                                                       Constants.PnuematicID.ArmBreakClose,
+                                                       Constants.PnuematicID.ArmBreakOpen);
   public void openClaw() {
     claw.set(Value.kReverse);
   }
 
  
-
   public void closedClaw() {
     claw.set(Value.kForward);
   }
 
   public void setElbowPosition(Position position){
+    elbowAtPosition = false;
+    armBreak.set(Value.kReverse);
+    breakClosed = false;
     switch (position){
       case Home: 
         elbow.setPosition(Constants.Arm.ElbowPosition.elbowHome);
@@ -81,7 +95,7 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean atElbowPosition(){
-    return elbow.atPosition();
+    return elbowAtPosition;
   }
 
   public boolean atExtensionPosition(){

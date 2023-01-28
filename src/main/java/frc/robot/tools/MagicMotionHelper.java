@@ -34,5 +34,8 @@ public class MagicMotionHelper {
 
         return settleCount >= settleThreshold;
     }
+    public void stop() {
+        motor.set(ControlMode.PercentOutput, 0.0);
+    }
 
 }
