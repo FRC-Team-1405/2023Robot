@@ -30,8 +30,8 @@ public class Arm extends SubsystemBase {
   }
 
   private DoubleSolenoid claw = new DoubleSolenoid( PneumaticsModuleType.CTREPCM, 
-                                                    Constants.DeviceID.ClawOpen, 
-                                                    Constants.DeviceID.ClawClosed);
+                                                    Constants.PnuematicID.ClawOpen, 
+                                                    Constants.PnuematicID.ClawClosed);
 
   private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 50.0, 3);
   private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 50.0, 3);
@@ -66,16 +66,16 @@ public class Arm extends SubsystemBase {
   public void setExtensionPosition(Position position){
     switch (position){
       case Home: 
-        extension.setPosition(Constants.Extension.ExtensionPosition.extensionHome);
+        extension.setPosition(Constants.Arm.ExtensionPosition.extensionHome);
         break;
       case Low: 
-        extension.setPosition(Constants.Extension.ExtensionPosition.extensionLow);
+        extension.setPosition(Constants.Arm.ExtensionPosition.extensionLow);
         break;
       case Medium:
-        extension.setPosition(Constants.Extension.ExtensionPosition.extensionMedium);
+        extension.setPosition(Constants.Arm.ExtensionPosition.extensionMedium);
         break;
       case High:
-        extension.setPosition(Constants.Extension.ExtensionPosition.extensionHigh);
+        extension.setPosition(Constants.Arm.ExtensionPosition.extensionHigh);
         break;
     }
   }
