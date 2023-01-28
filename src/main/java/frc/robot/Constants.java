@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Preferences;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -62,4 +63,46 @@ public final static class SwerveBase {
               new Translation2d(Units.inchesToMeters(-13), Units.inchesToMeters(13)));    // Back Right
 } 
 
+  public static class DeviceID {
+    public static final int Elbow = 11;
+    public static final int Extension = 12;
+    public static final int IntakeLeft = 13;
+    public static final int IntakeRight = 14;
+  }
+
+  public static class PnuematicID {
+    public static final int ClawOpen = 0;
+    public static final int ClawClosed = 1;
+    public static final int IntakeDeploy = 2;
+    public static final int IntakeRetract = 3;
+    public static final int ArmBreakClose = 4;
+    public static final int ArmBreakOpen = 5;
+  }
+
+  public static class Arm {
+    public static class ElbowPosition {
+      public static final int elbowHome = 500;
+      public static final int elbowLow = 750;
+      public static final int elbowMedium = 1000;
+      public static final int elbowHigh = 1250;
+    }
+
+    public static class ExtensionPosition {
+      public static final int extensionHome = 0;
+      public static final int extensionLow = 0;
+      public static final int extensionMedium = 0;
+      public static final int extensionHigh = 0;
+    }
+  }
+  
+  public static class Intake{
+    static {
+      Preferences.initDouble("Intake/LeftSpeed", 0.25);
+      LeftSpeed = Preferences.getDouble("Intake/Left5peed", 0.25);
+      Preferences.initDouble("Intake/RightSpeed", -0.25);
+      RightSpeed = Preferences.getDouble("Intake/RightSpeed", -0.25);
+    }
+    public static final double LeftSpeed;
+    public static final double RightSpeed;
+  }
 }
