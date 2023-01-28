@@ -7,6 +7,7 @@ package frc.robot;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 import badlog.lib.BadLog;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -31,17 +32,16 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    Date date = new Date();
     String filename = String.format("%s/Log_%s.bag",
                                     "/home/lvuser/log",
-                                    new SimpleDateFormat("yyyyMMddHHmm'.txt'").format(date));
+                                    UUID.randomUUID().toString());
     badlog = BadLog.init(filename);
 
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    BadLog.createValue("Start Time", new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z",Locale.US).format(date));
+    BadLog.createValue("Start Time", new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z",Locale.US).format(new Date()));
 
 
     badlog.finishInitialization();
