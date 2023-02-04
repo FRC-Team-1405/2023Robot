@@ -35,6 +35,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   private final SwerveDriveOdometry odometry = 
           new SwerveDriveOdometry(Constants.SwerveBase.KINEMATICS, gyro.getRotation2d(), getSwerveModulePositions()); 
 
+  private double pitchOffset = 0.0;
   public SwerveDrive() {
     //I am making the maxVelocity configurable so we can ajdust our "speedlimit"
     Preferences.initDouble("SwerveDrive/Speed Limit", 6); 
@@ -42,6 +43,8 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
     Preferences.initDouble("SwerveDrive/Rotation Speed Limit", 6.5); 
     maxAngularSpeed = Preferences.getDouble("SwerveDrive/Rotation Speed Limit", 6.5) ;
     //It may be useful to reset the gyro like this every boot-up. I believe we did this our old code
+    pitchOffset = gyro.getPitch();
+
     if (gyro != null)
       gyro.reset();
 
@@ -53,7 +56,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   public void periodic() {
     updateOdometry(); 
     SmartDashboard.putNumber("angle", gyro.getAngle()); 
-    SmartDashboard.putNumber("pitch", gyro.getPitch());
+    SmartDashboard.putNumber("pitch", getPitch());
     SmartDashboard.putNumber("distance x",odometry.getPoseMeters().getX()); 
     SmartDashboard.putNumber("distance y",odometry.getPoseMeters().getY()); 
   }
@@ -175,7 +178,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
  } 
 
  public double getPitch(){
-  return gyro.getPitch();
+  return gyro.getPitch() - pitchOffset;
  } 
 
  public void brakeMode(){ 

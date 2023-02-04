@@ -5,18 +5,16 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Balance;
-import frc.robot.commands.DriveToPitch;
 import frc.robot.commands.SwerveDriveCommand;
-import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.SwerveDrive;
 import badlog.lib.BadLog;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -47,6 +45,7 @@ public class RobotContainer {
     BadLog.createTopic("PDU/Total Energy", "J", () -> powerDistribution.getTotalEnergy(), "hide", "join:PDU/Totals");
     BadLog.createTopic("PDU/Total Power", "W", () -> powerDistribution.getTotalPower(), "hide", "join:PDU/Totals");
     
+    ConfigShuffleboard();
     driveBase.setDefaultCommand(new SwerveDriveCommand(this::getXSpeed, 
                                                        this::getYSpeed, 
                                                        this::getRotationSpeed, driveBase));
@@ -65,12 +64,20 @@ public class RobotContainer {
     driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); })); 
     
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
-
-    driver.a().whileTrue(new TurnToAngle(0.0, driveBase)); 
-    driver.y().onTrue(new SequentialCommandGroup(new DriveToPitch(driveBase), new WaitCommand(1.925),
-    new Balance(driveBase)));
   }
   
+  private void ConfigShuffleboard(){
+    SmartDashboard.putNumber("Swerve/X", 0.0);
+    SmartDashboard.putNumber("Swerve/Y", 0.0);
+    SmartDashboard.putNumber("Swerve/Z", 0.0);
+
+    SwerveDriveCommand swerveDrive = new SwerveDriveCommand(() -> { return SmartDashboard.getNumber("Swerve/X", 0.0); },
+                                                            () -> { return SmartDashboard.getNumber("Swerve/Y", 0.0); },
+                                                            () -> { return SmartDashboard.getNumber("Swerve/Z", 0.0); },
+                                                            driveBase);
+
+    SmartDashboard.putData("Swerve/Start", swerveDrive);
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -79,7 +86,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.AutoBalance(driveBase);
+    return Autos.RampDriveAuto(driveBase, false);
   }
   double getXSpeed(){ 
     double finalX;
