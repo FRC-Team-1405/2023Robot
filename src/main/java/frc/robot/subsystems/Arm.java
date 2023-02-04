@@ -28,11 +28,16 @@ public class Arm extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public enum Position {
+  public enum AnglePosition {
     Home,
     Low,
     Medium,
     High,
+  }
+
+  public enum ArmLength {
+    Extended,
+    Retracted,
   }
 
   private boolean elbowAtPosition = false;
@@ -57,7 +62,7 @@ public class Arm extends SubsystemBase {
     claw.set(Value.kForward);
   }
 
-  public void setElbowPosition(Position position){
+  public void setElbowPosition(AnglePosition position){
     elbowAtPosition = false;
     armBreak.set(Value.kReverse);
     breakClosed = false;
@@ -77,19 +82,13 @@ public class Arm extends SubsystemBase {
     }
   }
 
-  public void setExtensionPosition(Position position){
+  public void setExtensionPosition(ArmLength position){
     switch (position){
-      case Home: 
-        extension.setPosition(Constants.Arm.ExtensionPosition.extensionHome);
+      case Extended: 
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionExtended);
         break;
-      case Low: 
-        extension.setPosition(Constants.Arm.ExtensionPosition.extensionLow);
-        break;
-      case Medium:
-        extension.setPosition(Constants.Arm.ExtensionPosition.extensionMedium);
-        break;
-      case High:
-        extension.setPosition(Constants.Arm.ExtensionPosition.extensionHigh);
+      case Retracted: 
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionRetracted);
         break;
     }
   }
@@ -101,4 +100,7 @@ public class Arm extends SubsystemBase {
   public boolean atExtensionPosition(){
     return extension.atPosition();
   }
+
+public class ArmAngle {
+}
 }

@@ -88,14 +88,17 @@ public final static class SwerveBase {
     }
 
     public static class ExtensionPosition {
-      public static final int extensionHome = 0;
-      public static final int extensionLow = 0;
-      public static final int extensionMedium = 0;
-      public static final int extensionHigh = 0;
+      static {
+        Preferences.initInt("Arm/ExtensionRetracted", 0);
+        ExtensionRetracted = Preferences.getInt("Arm/ExtensionRetracted", 0);
+        Preferences.initInt( "Arm/ExtensionExtended", 1000);
+        ExtensionExtended = Preferences.getInt( "Arm/ExtensionRetracted", 1000);
+      }
+      public static int ExtensionRetracted = 0;
+      public static int ExtensionExtended = 0;}
     }
-  }
   
-  public static class Intake{
+  public static class Intake {
     static {
       Preferences.initDouble("Intake/LeftSpeed", 0.25);
       LeftSpeed = Preferences.getDouble("Intake/Left5peed", 0.25);

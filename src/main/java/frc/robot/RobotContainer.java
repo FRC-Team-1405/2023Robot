@@ -61,6 +61,7 @@ public class RobotContainer {
     driver.a().whileTrue(new TurnToAngle(0.0, driveBase)); 
     driver.y().onTrue(new SequentialCommandGroup(new DriveToPitch(driveBase), new WaitCommand(1.925),
     new Balance(driveBase)));
+    driver.x().onTrue( new InstantCommand( arm::openClaw, arm) );
   }
   
 
