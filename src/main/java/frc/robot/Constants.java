@@ -68,6 +68,8 @@ public final static class SwerveBase {
     public static final int Extension = 12;
     public static final int IntakeLeft = 13;
     public static final int IntakeRight = 14;
+    public static final int BeltIntake = 15;
+    public static final int FeederIntake = 16;
   }
 
   public static class PnuematicID {
@@ -77,6 +79,8 @@ public final static class SwerveBase {
     public static final int IntakeRetract = 3;
     public static final int ArmBreakClose = 4;
     public static final int ArmBreakOpen = 5;
+    public static final int GateOpen = 6;
+    public static final int GateClose = 7;
   }
 
   public static class Arm {
@@ -105,4 +109,21 @@ public final static class SwerveBase {
     public static final double LeftSpeed;
     public static final double RightSpeed;
   }
+  public static class Indexer{
+    public static final double BeltSpeed;
+    public static final double BeltSpeedReverse;
+    public static final double FeederForward;
+    public static final double FeederReverse;
+    static {
+      Preferences.initDouble("Indexer/BeltSpeed", 0.25);
+      BeltSpeed = Preferences.getDouble("Indexer/BeltSpeed", 0.25);
+      Preferences.initDouble("Indexer/BeltSpeedReverse", -0.25);
+      BeltSpeedReverse = Preferences.getDouble("Indexer/BeltSpeedReverse", -0.25);
+      Preferences.initDouble("Indexer/FeederForward", 0.25);
+      FeederForward = Preferences.getDouble("Indexer/FeederForward", 0.25);
+      Preferences.initDouble("Indexer/FeederReverse", -0.25);
+      FeederReverse = Preferences.getDouble("Indexer/FeederReverse", -0.25);
+    }
+  }
+
 }

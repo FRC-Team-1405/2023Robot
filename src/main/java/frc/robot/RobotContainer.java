@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Balance;
@@ -11,11 +12,15 @@ import frc.robot.commands.DriveToPitch;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.SwerveDrive;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -31,6 +36,7 @@ public class RobotContainer {
   private final SwerveDrive driveBase = new SwerveDrive();
   private final Arm arm = new Arm();
   private final Intake intake = new Intake();
+  private final Indexer indexer = new Indexer();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driver = new CommandXboxController(OperatorConstants.DriverControllerPort);
@@ -59,8 +65,27 @@ public class RobotContainer {
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
 
     driver.a().whileTrue(new TurnToAngle(0.0, driveBase)); 
-    driver.y().onTrue(new SequentialCommandGroup(new DriveToPitch(driveBase), new WaitCommand(1.925),
-    new Balance(driveBase)));
+    driver.y().onTrue(new SequentialCommandGroup(new DriveToPitch(driveBase), new WaitCommand(1.925), new Balance(driveBase)));
+
+    CommandBase command = new InstantCommand(indexer::gateRaise, indexer )
+                      .andThen( new InstantCommand(indexer::feederIntake, indexer )
+                      .andThen( new InstantCommand(indexer::beltTake, indexer )))
+                      .andThen( new WaitCommand( 1.0 ))
+                      .andThen( new InstantCommand(indexer::beltOff, indexer ))
+                      .andThen( new InstantCommand(indexer::feederOff, indexer ))
+                      .andThen( new InstantCommand(indexer::gateLower, indexer ));
+    SmartDashboard.putData("Indexer/Score", command);
+
+    command = new InstantCommand(indexer::gateLower, indexer )
+                      .andThen( new InstantCommand(indexer::feederIntake, indexer )
+                      .andThen( new InstantCommand(indexer::beltTake, indexer )))
+                      .andThen( new WaitCommand( 1.0 ))
+                      .andThen( new InstantCommand(indexer::beltOff, indexer ))
+                      .andThen( new InstantCommand(indexer::feederOff, indexer ));
+    SmartDashboard.putData("Indexer/Score2", command);
+
+
+
   }
   
 
