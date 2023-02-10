@@ -18,4 +18,5 @@ public interface SwerveSubsystem extends Subsystem{
     public double getMaxAngularSpeed(); 
     public void brakeMode(); 
     public double getMaxAngularAcceleration();
+    public void parkingBrake(boolean enabled);
 }

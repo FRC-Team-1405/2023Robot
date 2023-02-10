@@ -187,7 +187,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   frontRight.brakeMode(); 
   backRight.brakeMode();
  } 
- private boolean parkingBrake = true; 
+ private boolean parkingBrake = false; 
  public void parkingBrake(boolean enabled){ 
   parkingBrake = enabled; 
  }

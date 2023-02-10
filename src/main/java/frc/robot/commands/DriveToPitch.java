@@ -35,6 +35,7 @@ public class DriveToPitch extends CommandBase {
   public void initialize() { 
     pitchFlag = Math.abs(swerve.getPitch());
     swerve.brakeMode();
+    swerve.parkingBrake(true);
    // pitchController.reset(Units.degreesToRadians(swerve.getPitch())); 
   }
 

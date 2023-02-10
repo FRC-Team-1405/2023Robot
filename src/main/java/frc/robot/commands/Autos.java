@@ -5,7 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.SwerveDrive; 
-import frc.robot.commands.AutoBalance;
+import frc.robot.commands.AutoBalance_old;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -18,7 +18,7 @@ public final class Autos {
     return Commands.sequence(new DriveToPitch(swerve, forward), 
                             new RunCommand(()-> swerve.drive((forward ? 0.2 : -0.2), 0, 0), swerve).withTimeout(2.5),
                             new RunCommand(()-> swerve.drive(0, 0, 0), swerve).withTimeout(2),
-                            new AutoBalance(swerve, !forward));
+                            AutoBalance.Command(swerve, !forward));
   }
 
   public static CommandBase AutoFieldDrive(SwerveDrive swerve, double x, double y, double z){

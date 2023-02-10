@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoBalance;
+import frc.robot.commands.AutoBalance_old;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Balance;
 import frc.robot.commands.SwerveDriveCommand;
@@ -86,7 +87,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.RampDriveAuto(driveBase, false);
+    return Autos.RampDriveAuto(driveBase, true);
   }
   double getXSpeed(){ 
     double finalX;
