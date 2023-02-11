@@ -6,14 +6,15 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.tools.Stabilize;
 
 /** Add your docs here. */
 public class AutoBalance {
-    protected static final double PITCH_DELTA = 1.0;
+    protected static final double PITCH_DELTA = 5.0;
     protected static final double PITCH_DROP_DELTA = 0.1;
     protected static final double PITCH_BALANCED = 1.5;
     
@@ -39,7 +40,7 @@ public class AutoBalance {
     private static class Balance extends CommandBase {
         private boolean forward;
 
-        private double pitch = 0.0; 
+        private double targetPitch = 0.0; 
         private SwerveDrive swerveDrive;
         private DoubleSupplier speedSupplier;
         private double speed;
@@ -60,7 +61,11 @@ public class AutoBalance {
             else if(swerveDrive.getPitch() < 0){
             forward = false; 
             }
-            pitch = (Math.abs(swerveDrive.getPitch()) - PITCH_DELTA); 
+            
+            targetPitch = (Math.abs(swerveDrive.getPitch()) / 3.0); 
+            if (targetPitch < PITCH_BALANCED / 3.0) {
+                targetPitch = PITCH_BALANCED / 3.0;
+            }
             swerveDrive.brakeMode();
         }
         
@@ -80,8 +85,8 @@ public class AutoBalance {
         // Returns true when the command should end.
         @Override
         public boolean isFinished() { 
-        
-            return Math.abs(swerveDrive.getPitch()) < pitch; 
+            double currentPitch = Math.abs(swerveDrive.getPitch());
+            return (currentPitch < targetPitch || currentPitch < PITCH_BALANCED) ;
         
         } 
     }
@@ -102,7 +107,7 @@ public class AutoBalance {
          @Override
          public boolean isFinished() { 
             double new_pitch = swerveDrive.getPitch(); 
-            if (Math.abs(new_pitch - pitch) < PITCH_DROP_DELTA) {
+            if ( Math.abs(new_pitch - pitch) < PITCH_DROP_DELTA) {
                 return true;
             }
             pitch = new_pitch;
@@ -119,7 +124,8 @@ public class AutoBalance {
          // Returns true when the command should end.
          @Override
          public boolean isFinished() { 
-            return Math.abs(swerveDrive.getPitch()) > PITCH_BALANCED;
+            double pitch = Math.abs(swerveDrive.getPitch());
+            return pitch > PITCH_BALANCED;
          } 
     }
 }
