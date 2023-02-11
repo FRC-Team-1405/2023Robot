@@ -54,7 +54,7 @@ public final class Autos {
     SmartDashboard.putData("Auto/Step 3", step_3);
   }
 
-  public static CommandBase SelectedAuto(SwerveDrive swerve){
+  public static CommandBase getSelectedAuto(SwerveDrive swerve){
     Position pos = position.getSelected();
     CommandBase autoCommand = Commands.print("Auto Command");
 
