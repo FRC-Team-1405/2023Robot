@@ -1,7 +1,12 @@
 {
   "NTProvider": {
     "types": {
-      "/FMSInfo": "FMSInfo"
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auto/Position": "String Chooser",
+      "/SmartDashboard/Auto/Step 1": "String Chooser",
+      "/SmartDashboard/Auto/Step 2": "String Chooser",
+      "/SmartDashboard/Auto/Step 3": "String Chooser",
+      "/SmartDashboard/Swerve/Start": "Command"
     }
   }
 }

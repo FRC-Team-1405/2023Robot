@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.Preferences;
  */
 public final class Constants {
   public static class OperatorConstants {
-    public static final int DriverControllerPort = 1; 
+    public static final int DriverControllerPort = 0; 
 } 
 
 public final static class SwerveBase {
