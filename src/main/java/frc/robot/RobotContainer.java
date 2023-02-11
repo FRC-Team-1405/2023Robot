@@ -9,6 +9,7 @@ import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
 import frc.robot.commands.Balance;
 import frc.robot.commands.SwerveDriveCommand;
+import frc.robot.commands.VisionAlignment;
 import frc.robot.subsystems.SwerveDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,7 +53,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); })); 
-    
+    driver.a().whileTrue(new VisionAlignment(this::getXSpeed, 0, driveBase));
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
   }
   
