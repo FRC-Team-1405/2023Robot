@@ -16,11 +16,14 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.library.SimpleCache;
 
 public class SwerveModule extends SubsystemBase {
   private final WPI_TalonFX driveMotor; 
   private final WPI_TalonFX steeringMotor; 
   private final CANCoder steeringEncoder;
+
+  private final SimpleCache<Double> steeringCache;
 
   // Map ID to offset default values
   private static double[] offsets = {0, 0, 0, 0};
@@ -70,6 +73,15 @@ public class SwerveModule extends SubsystemBase {
     driveMotor = new WPI_TalonFX(driveMotorID); 
     steeringMotor = new WPI_TalonFX(steeringMotorID); 
     steeringEncoder = new CANCoder(steeringEncoderID);
+
+    steeringCache = new SimpleCache<Double>(
+      () -> {
+        return steeringEncoder.getPosition();
+      },
+      (Double position) -> { 
+        steeringMotor.set(ControlMode.MotionMagic, position); 
+      },
+      1000);
     
     String prefKey = String.format("SwerveModule/Offset_%02d", steeringMotorID);
     Preferences.initDouble(prefKey, offsets[steeringMotorID-ENCODER_BASE]);
@@ -119,13 +131,13 @@ public class SwerveModule extends SubsystemBase {
       
       if(driveSpeed == 0.0){ 
         if (brakeMode == true){ 
-          steeringMotor.set(ControlMode.MotionMagic, AngleToEncoder(-45)); 
+          steeringCache.accept((double)AngleToEncoder(-45));
         } else {
-          steeringMotor.set(ControlMode.PercentOutput, 0.0);
+          steeringCache.accept(0.0);
         }
         driveMotor.set(ControlMode.PercentOutput, 0.0);   
       } else {
-        steeringMotor.set(ControlMode.MotionMagic, target); 
+        steeringCache.accept(target);
         driveMotor.set(ControlMode.Velocity, driveSpeed);   
       }
        
@@ -137,11 +149,11 @@ public class SwerveModule extends SubsystemBase {
   } 
 
   public double getAngle(){ 
-    return steeringEncoder.getPosition();
+    return steeringCache.get();
   } 
 
   public double getAngleNormalized(){
-    return Math.IEEEremainder(steeringEncoder.getPosition(), 180.0);
+    return Math.IEEEremainder(steeringCache.get(), 180.0);
   } 
 
   protected final static int ENCODER_COUNT = 4096;  
