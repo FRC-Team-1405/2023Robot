@@ -4,20 +4,120 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.SwerveDrive; 
-
+import frc.robot.subsystems.SwerveDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+
 
 public final class Autos {
+
+  private enum Position {
+    Left,
+    Center,
+    Right,
+  };
+
+  private enum AutoCommand {
+    Score_High,
+    Score_Middle,
+    Score_Low,
+    Drive_Over_Ramp,
+    Balance_Forward,
+    Balance_Backwards,
+    Do_Nothing
+  };
+
+  private static final SendableChooser<Position> position = new SendableChooser<>();  
+  private static final SendableChooser<AutoCommand> step_1 = new SendableChooser<>();
+  private static final SendableChooser<AutoCommand> step_2 = new SendableChooser<>();
+  private static final SendableChooser<AutoCommand> step_3 = new SendableChooser<>();
+
+  public static void initAutoSelector(){
+    position.setDefaultOption("Center", Position.Center);
+    position.addOption("Left", Position.Left);
+    position.addOption("Right", Position.Right);
+    SmartDashboard.putData("Auto/Position", position);
+    
+    step_1.setDefaultOption("High", AutoCommand.Score_High);
+    step_1.addOption("Do nothing!", AutoCommand.Do_Nothing);
+    SmartDashboard.putData("Auto/Step 1", step_1);
+        
+    step_2.setDefaultOption("Drive over ramp", AutoCommand.Drive_Over_Ramp);
+    step_2.addOption("Do nothing!", AutoCommand.Do_Nothing);
+    SmartDashboard.putData("Auto/Step 2", step_2);
+
+    step_3.setDefaultOption("Backwards Balance", AutoCommand.Balance_Backwards);
+    step_3.addOption("Forwards Balance", AutoCommand.Balance_Forward);
+    SmartDashboard.putData("Auto/Step 3", step_3);
+  }
+
+  public static CommandBase SelectedAuto(SwerveDrive swerve){
+    Position pos = position.getSelected();
+    CommandBase autoCommand = Commands.print("Auto Command");
+
+    switch (step_1.getSelected()){
+      case Score_High:    autoCommand.andThen( scoreLow() ) ;    
+                          break;
+      case Score_Middle:  autoCommand.andThen( scoreMiddle() ) ;  
+                          break;
+      case Score_Low:     autoCommand.andThen( scoreLow() ) ;     
+                          break;
+      default:            autoCommand.andThen( Commands.print("Skipping Step 1") ) ; 
+                          break;
+      }
+
+      switch (step_2.getSelected()){
+        case Drive_Over_Ramp: autoCommand.andThen( scoreLow() ) ;    
+                              break;
+        case Balance_Forward: autoCommand.andThen( scoreMiddle() ) ;  
+                              break;
+        default:              autoCommand.andThen( Commands.print("Skipping Step 2") ) ; 
+                              break;
+      }
+
+      switch (step_3.getSelected()){
+        case Balance_Backwards: autoCommand.andThen( BalanceAuto(swerve, false) );
+                                break;
+        default:                autoCommand.andThen( Commands.print("Skipping Step 3") );
+                                break;
+      }
+  
+      autoCommand.andThen( Commands.print("Auto command stopped"));
+ 
+      return autoCommand;
+  }
+  
 
   public static CommandBase RampDriveAuto(SwerveDrive swerve, boolean forward){
     return Commands.sequence(new DriveToPitch(swerve, forward), 
                             new RunCommand(()-> swerve.drive((forward ? 0.2 : -0.2), 0, 0), swerve).withTimeout(2.5),
                             new RunCommand(()-> swerve.drive(0, 0, 0), swerve).withTimeout(2),
                             AutoBalance.Command(swerve, !forward));
+  }
+
+  public static CommandBase BalanceAuto(SwerveDrive swerve, boolean forward){
+    return AutoBalance.Command(swerve, forward);
+  }
+
+  public static CommandBase DriveOverRamp(SwerveDrive swerve, boolean forward){
+    return Commands.sequence(new DriveToPitch(swerve, forward), 
+                             new RunCommand(()-> swerve.drive((forward ? 0.2 : -0.2), 0, 0), swerve).withTimeout(2.5),
+                             new RunCommand(()-> swerve.drive(0, 0, 0), swerve).withTimeout(2));
+  }
+
+  private static CommandBase scoreLow(){
+    return Commands.print("Score in low goal");
+  }
+
+  private static CommandBase scoreMiddle(){
+    return Commands.print("score in middle goal");
+  }
+  
+  private static CommandBase scoreHigh(){
+    return Commands.print("score in high goal");
   }
 
   public static CommandBase AutoFieldDrive(SwerveDrive swerve, double x, double y, double z){

@@ -46,6 +46,8 @@ public class RobotContainer {
     BadLog.createTopic("PDU/Total Power", "W", () -> powerDistribution.getTotalPower(), "hide", "join:PDU/Totals");
     
     ConfigShuffleboard();
+    Autos.initAutoSelector();
+
     driveBase.setDefaultCommand(new SwerveDriveCommand(this::getXSpeed, 
                                                        this::getYSpeed, 
                                                        this::getRotationSpeed, driveBase));
@@ -86,7 +88,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.RampDriveAuto(driveBase, true);
+  return Autos.RampDriveAuto(driveBase, true);
   }
   double getXSpeed(){ 
     double finalX;

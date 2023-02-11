@@ -4,8 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -177,8 +180,11 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   return gyro.getAngle();
  } 
 
+ private MedianFilter pitchFilter = new MedianFilter(15);
  public double getPitch(){
-  return gyro.getPitch() - pitchOffset;
+  double pitch = gyro.getPitch() - pitchOffset ;
+  SmartDashboard.putNumber("UnfilterdPitch", pitch);
+  return pitchFilter.calculate( gyro.getPitch() - pitchOffset );
  } 
 
  public void brakeMode(){ 
