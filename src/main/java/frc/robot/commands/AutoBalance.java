@@ -9,6 +9,8 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.sensors.Limelight;
+import frc.robot.sensors.Limelight.LED;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.tools.Stabilize;
 
@@ -17,7 +19,6 @@ public class AutoBalance {
     protected static final double PITCH_DELTA = 5.0;
     protected static final double PITCH_DROP_DELTA = 0.1;
     protected static final double PITCH_BALANCED = 1.5;
-    
     public static CommandBase Command(SwerveDrive swerve, boolean forward) {
         DoubleSupplier speedSupplier = new DoubleSupplier() {
             private double speed = 0.12;
@@ -40,6 +41,7 @@ public class AutoBalance {
     private static class Balance extends CommandBase {
         private boolean forward;
 
+        private Limelight limelight = new Limelight();
         private double targetPitch = 0.0; 
         private SwerveDrive swerveDrive;
         private DoubleSupplier speedSupplier;
@@ -80,6 +82,7 @@ public class AutoBalance {
         public void end(boolean interrupted) { 
             System.out.println("stop");
             swerveDrive.drive(0.0, 0, 0);
+            limelight.setLED(LED.Blink);
         }
         
         // Returns true when the command should end.
