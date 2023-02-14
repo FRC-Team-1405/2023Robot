@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.sensors.Limelight;
+import frc.robot.sensors.Limelight.LED;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class VisionAlignment extends CommandBase {
@@ -41,7 +42,9 @@ public class VisionAlignment extends CommandBase {
     }
     
     public void initialize() { 
-        xController.reset();
+        xController.reset(); 
+        limelight.setPipeline((byte) 0);
+        limelight.setLED(LED.On);
     }
 
     public void execute() { 
@@ -50,7 +53,7 @@ public class VisionAlignment extends CommandBase {
         double speed = xController.calculate( angle ); 
         SmartDashboard.putNumber("Error", xController.getPositionError()); 
         SmartDashboard.putNumber("Speed", speed); 
-        setRotation(speed);}
+        setPosition(speed);}
     }
 
     public boolean isFinished() {
@@ -58,10 +61,12 @@ public class VisionAlignment extends CommandBase {
       }    
 
     public void end(boolean interrupted) {
-        setRotation(0.0);
+        setPosition(0.0); 
+        limelight.setPipeline((byte) 1);
+        limelight.setLED(LED.Off);
     }
 
-    private void setRotation(double speed) {
+    private void setPosition(double speed) {
         ChassisSpeeds chassisSpeeds = new ChassisSpeeds(forwardSpeed.getAsDouble(), -speed, 0);
         SwerveModuleState[] moduleStates = swerve.getKinematics().toSwerveModuleStates(chassisSpeeds) ;
         swerve.setModuleStates( moduleStates);
