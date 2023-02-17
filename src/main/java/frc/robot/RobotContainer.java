@@ -5,17 +5,18 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
-import frc.robot.commands.Balance;
+import frc.robot.commands.ResetGyro;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.tools.DigitalToggle;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Intake;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -31,7 +32,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driver = new CommandXboxController(OperatorConstants.DriverControllerPort);
-
+ 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -57,6 +58,9 @@ public class RobotContainer {
     driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); })); 
     driver.a().whileTrue(new VisionAlignment(this::getXSpeed, 0, driveBase));
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
+
+    Trigger toggle = new Trigger(new DigitalToggle(0));
+    toggle.onTrue( new InstantCommand( driveBase::resetGyro ));
   }
   
   private void ConfigShuffleboard(){

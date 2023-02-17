@@ -27,7 +27,7 @@ public final class Autos {
     Drive_Over_Ramp,
     Balance_Forward,
     Balance_Backwards,
-    Do_Nothing
+    Do_Nothing,
   };
 
   private static final SendableChooser<Position> position = new SendableChooser<>();  
