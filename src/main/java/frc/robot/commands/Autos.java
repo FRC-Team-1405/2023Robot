@@ -24,6 +24,7 @@ public final class Autos {
     Score_High,
     Score_Middle,
     Score_Low,
+    Leave_Community,
     Drive_Over_Ramp,
     Balance_Forward,
     Balance_Backwards,
@@ -42,15 +43,21 @@ public final class Autos {
     SmartDashboard.putData("Auto/Position", position);
     
     step_1.setDefaultOption("High", AutoCommand.Score_High);
+    step_1.addOption("Middle", AutoCommand.Score_Middle);
+    step_1.addOption("Low", AutoCommand.Score_Low);
     step_1.addOption("Do nothing!", AutoCommand.Do_Nothing);
+    
     SmartDashboard.putData("Auto/Step 1", step_1);
         
     step_2.setDefaultOption("Drive over ramp", AutoCommand.Drive_Over_Ramp);
+    step_2.addOption("Backwards Balance", AutoCommand.Balance_Backwards);
+    step_2.addOption("Leave Community", AutoCommand.Leave_Community);
     step_2.addOption("Do nothing!", AutoCommand.Do_Nothing);
     SmartDashboard.putData("Auto/Step 2", step_2);
 
     step_3.setDefaultOption("Backwards Balance", AutoCommand.Balance_Backwards);
     step_3.addOption("Forwards Balance", AutoCommand.Balance_Forward);
+    step_3.addOption("Do Nothing!", AutoCommand.Do_Nothing);
     SmartDashboard.putData("Auto/Step 3", step_3);
   }
 
@@ -59,7 +66,7 @@ public final class Autos {
     CommandBase autoCommand = Commands.print("Auto Command");
 
     switch (step_1.getSelected()){
-      case Score_High:    autoCommand.andThen( scoreLow() ) ;    
+      case Score_High:    autoCommand.andThen( scoreHigh() ) ;    
                           break;
       case Score_Middle:  autoCommand.andThen( scoreMiddle() ) ;  
                           break;
@@ -70,9 +77,11 @@ public final class Autos {
       }
 
       switch (step_2.getSelected()){
-        case Drive_Over_Ramp: autoCommand.andThen( scoreLow() ) ;    
+        case Drive_Over_Ramp: autoCommand.andThen( DriveOverRamp(swerve, false) ) ;    
                               break;
-        case Balance_Forward: autoCommand.andThen( scoreMiddle() ) ;  
+        case Balance_Backwards: autoCommand.andThen( BalanceAuto(swerve, false) ) ;  
+                              break;
+        case Leave_Community: autoCommand.andThen(leaveCommunity(swerve, false));
                               break;
         default:              autoCommand.andThen( Commands.print("Skipping Step 2") ) ; 
                               break;
@@ -81,6 +90,8 @@ public final class Autos {
       switch (step_3.getSelected()){
         case Balance_Backwards: autoCommand.andThen( BalanceAuto(swerve, false) );
                                 break;
+        case Balance_Forward: autoCommand.andThen(BalanceAuto(swerve, true));
+                                break;                        
         default:                autoCommand.andThen( Commands.print("Skipping Step 3") );
                                 break;
       }
@@ -106,6 +117,10 @@ public final class Autos {
     return Commands.sequence(new DriveToPitch(swerve, forward), 
                              new RunCommand(()-> swerve.drive((forward ? 0.2 : -0.2), 0, 0), swerve).withTimeout(2.5),
                              new RunCommand(()-> swerve.drive(0, 0, 0), swerve).withTimeout(2));
+  }
+
+  private static CommandBase leaveCommunity(SwerveDrive swerve, boolean forward){
+    return Commands.sequence(new RunCommand(()-> swerve.drive((forward ? 0.2 : -0.2), 0, 0), swerve).withTimeout(1));
   }
 
   private static CommandBase scoreLow(){
