@@ -4,10 +4,8 @@
 
 package frc.robot.subsystems;
 
-import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
-import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.math.filter.LinearFilter;
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -47,11 +45,14 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
     maxAngularSpeed = Preferences.getDouble("SwerveDrive/Rotation Speed Limit", 6.5) ;
     //It may be useful to reset the gyro like this every boot-up. I believe we did this our old code
     pitchOffset = gyro.getPitch();
-
-    if (gyro != null)
-      gyro.reset();
-
+    resetGyro();
     enableFieldOriented(isFieldOrientedEnabled);
+  }
+
+  public void resetGyro(){
+    if (gyro != null){
+      gyro.reset();
+    }
   }
 
 
