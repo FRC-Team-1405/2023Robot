@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.tools.DigitalToggle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -72,7 +73,8 @@ public class RobotContainer {
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
 
     Trigger toggle = new Trigger(new DigitalToggle(0));
-    toggle.onTrue( new InstantCommand( driveBase::resetGyro ));
+    Trigger robotEnabled = new Trigger( () -> { return RobotState.isDisabled(); } );
+    toggle.and(robotEnabled).onTrue( new InstantCommand( driveBase::resetGyro ));
   }
   
   private void ConfigShuffleboard(){
