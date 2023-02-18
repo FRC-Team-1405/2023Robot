@@ -14,10 +14,13 @@ import frc.robot.tools.DigitalToggle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -60,9 +63,19 @@ public class RobotContainer {
     driver.a().whileTrue(new VisionAlignment(this::getXSpeed, 0, driveBase));
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
 
-    Trigger toggle = new Trigger(new DigitalToggle(0));
-    Trigger robotEnabled = new Trigger( () -> { return RobotState.isDisabled(); } );
-    toggle.and(robotEnabled).onTrue( new InstantCommand( driveBase::resetGyro ));
+    // Trigger toggle = new Trigger(new DigitalToggle(0));
+    // Trigger robotEnabled = new Trigger( () -> { return RobotState.isDisabled(); } );
+    // toggle.and(robotEnabled).onTrue( new InstantCommand( driveBase::resetGyro ));
+
+    CommandBase resetGyro = new InstantCommand( driveBase::resetGyro ) {
+      public boolean runsWhenDisabled() {
+        return true;
+      }    
+    }.andThen(new WaitCommand(10));
+
+    resetGyro.setName("Reset Gyro Command");
+    SmartDashboard.putData("Reset Gyro", resetGyro);
+    
   }
   
   private void ConfigShuffleboard(){
