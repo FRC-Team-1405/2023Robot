@@ -14,7 +14,9 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
 import badlog.lib.BadLog;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import frc.robot.subsystems.SwerveModule;
 import frc.robot.tools.DigitalToggle;
+import frc.robot.tools.SwerveType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.RobotState;
@@ -110,7 +112,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-  return Autos.RampDriveAuto(driveBase, true);
+  return Autos.BalanceAuto(driveBase, false);
   }
   double getXSpeed(){ 
     double finalX;
@@ -119,7 +121,7 @@ public class RobotContainer {
     else
       finalX = driver.getLeftY() * 0.5 * (1.0 + driver.getLeftTriggerAxis());
     
-    return -finalX;
+    return finalX;
   }
 
   public double getYSpeed(){ 
@@ -129,6 +131,8 @@ public class RobotContainer {
     else
       finalY = driver.getLeftX() * 0.5 * (1.0 + driver.getLeftTriggerAxis());
     
+    if (SwerveType.isStandard())
+      finalY = -finalY;
     return finalY;
   } 
   
