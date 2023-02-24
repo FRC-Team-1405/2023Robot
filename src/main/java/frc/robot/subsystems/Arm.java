@@ -31,8 +31,9 @@ public class Arm extends SubsystemBase {
   public enum Position {
     Home,
     Low,
-    Medium,
+    Middle,
     High,
+    Custom,
   }
 
   private boolean elbowAtPosition = false;
@@ -42,8 +43,8 @@ public class Arm extends SubsystemBase {
                                                     Constants.PnuematicID.ClawOpen, 
                                                     Constants.PnuematicID.ClawClosed);
 
-  private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 50.0, 3);
-  private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 50.0, 3);
+  private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 1000.0, 3);
+  private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 1000.0, 3);
 
   private DoubleSolenoid armBreak = new DoubleSolenoid( PneumaticsModuleType.CTREPCM,
                                                        Constants.PnuematicID.ArmBreakClose,
@@ -68,12 +69,15 @@ public class Arm extends SubsystemBase {
       case Low: 
         elbow.setPosition(Constants.Arm.ElbowPosition.elbowLow);
         break;
-      case Medium:
+      case Middle:
         elbow.setPosition(Constants.Arm.ElbowPosition.elbowMedium);
         break;
       case High:
         elbow.setPosition(Constants.Arm.ElbowPosition.elbowHigh);
         break;
+      case Custom:
+        break;
+        // TODO Implement Custom
     }
   }
 
@@ -85,12 +89,14 @@ public class Arm extends SubsystemBase {
       case Low: 
         extension.setPosition(Constants.Arm.ExtensionPosition.extensionLow);
         break;
-      case Medium:
+      case Middle:
         extension.setPosition(Constants.Arm.ExtensionPosition.extensionMedium);
         break;
       case High:
         extension.setPosition(Constants.Arm.ExtensionPosition.extensionHigh);
         break;
+      case Custom:
+      // TODO Implement Custom
     }
   }
 

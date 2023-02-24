@@ -7,8 +7,10 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ResetGyro;
+import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.tools.DigitalToggle;
@@ -35,9 +37,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here... 
   private final SwerveDrive driveBase = new SwerveDrive();
+  private final Arm arm = new Arm();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driver = new CommandXboxController(OperatorConstants.DriverControllerPort);
+  private final CommandXboxController operator = new CommandXboxController(OperatorConstants.OperatorControllerPort);
  
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -62,8 +66,15 @@ public class RobotContainer {
    */
   private void configureBindings() {
     driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); })); 
-    driver.a().whileTrue(new VisionAlignment(this::getXSpeed, 0, driveBase));
+    driver.b().whileTrue(new VisionAlignment(this::getXSpeed, 0, driveBase));
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
+
+    ScoreCommand scoreCommand = new ScoreCommand(arm);
+    operator.y().onTrue(scoreCommand.setHighPostition);
+    operator.b().onTrue(scoreCommand.setMiddlePosition);
+    operator.a().onTrue(scoreCommand.setLowPostition);
+    operator.x().onTrue(scoreCommand.setCustomPosition);
+    driver.a().whileTrue(scoreCommand);
 
     // Trigger toggle = new Trigger(new DigitalToggle(0));
     // Trigger robotEnabled = new Trigger( () -> { return RobotState.isDisabled(); } );
