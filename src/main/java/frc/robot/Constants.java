@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.Preferences;
 public final class Constants {
   public static class OperatorConstants {
     public static final int DriverControllerPort = 0; 
+    public static final int OperatorControllerPort = 1; 
 } 
 
 public final static class SwerveBase {
@@ -81,17 +82,17 @@ public final static class SwerveBase {
 
   public static class Arm {
     public static class ElbowPosition {
-      public static final int elbowHome = 500;
-      public static final int elbowLow = 750;
-      public static final int elbowMedium = 1000;
-      public static final int elbowHigh = 1250;
+      public static final int elbowHome = -0;
+      public static final int elbowLow = -25000;
+      public static final int elbowMedium = -70000;
+      public static final int elbowHigh = -100000;
     }
 
     public static class ExtensionPosition {
-      public static final int extensionHome = 0;
-      public static final int extensionLow = 0;
-      public static final int extensionMedium = 0;
-      public static final int extensionHigh = 0;
+      public static final int extensionHome = -6000;
+      public static final int extensionLow = -40000;
+      public static final int extensionMedium = -120000;
+      public static final int extensionHigh = -230000;
     }
   }
   
