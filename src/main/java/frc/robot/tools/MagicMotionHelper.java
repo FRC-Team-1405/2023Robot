@@ -6,6 +6,8 @@ package frc.robot.tools;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.IMotorController;
+import com.ctre.phoenix.motorcontrol.can.BaseMotorController;
+import com.ctre.phoenix.motorcontrol.can.SlotConfiguration;
 
 /** Add your docs here. */
 public class MagicMotionHelper {
@@ -19,11 +21,26 @@ public class MagicMotionHelper {
         this.threshold=threshold;
         this.settleThreshold=settle;
     }
+
+    public MagicMotionHelper(BaseMotorController motor, int settle){
+        SlotConfiguration slot = new SlotConfiguration();
+        motor.getSlotConfigs(slot, 0, settle);
+        this.threshold = slot.allowableClosedloopError * 2;
+
+        this.motor=motor;
+        this.settleThreshold=settle;
+    }
+
     public void setPosition(double pos){
         this.pos=pos;
         settleCount=0;
         motor.set(ControlMode.MotionMagic, pos);
     }
+
+    public double getPosition(){
+        return pos;
+    }
+
     public boolean atPosition(){
         if ( (Math.abs(motor.getActiveTrajectoryPosition() - pos) < threshold) 
             && (Math.abs(motor.getClosedLoopError(0)) < threshold) ){
