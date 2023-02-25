@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ResetGyro;
 import frc.robot.commands.ScoreCommand;
@@ -88,6 +89,11 @@ public class RobotContainer {
     
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
+    driver.b().whileTrue( new SequentialCommandGroup( 
+                              new AutoBalance.Balance(driveBase),
+                              new AutoBalance.DropTrigger(driveBase),
+                              new AutoBalance.BalanceTrigger(driveBase) ).repeatedly()
+                          );
 
 
     driver.leftBumper().onTrue( 
