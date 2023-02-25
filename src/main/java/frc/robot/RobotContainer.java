@@ -84,10 +84,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); }));
-    
-    driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
-
     ScoreCommand scoreCommand = new ScoreCommand(arm);
     operator.y().onTrue(scoreCommand.setHighPostition);
     operator.b().onTrue(scoreCommand.setMiddlePosition);
@@ -104,7 +100,21 @@ public class RobotContainer {
                               new AutoBalance.DropTrigger(driveBase),
                               new AutoBalance.BalanceTrigger(driveBase) ).repeatedly()
                           );
-
+    driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); }));
+    driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
+                      
+    driver.rightBumper()
+      .whileTrue( Commands.startEnd(
+                    () -> {
+                      intake.intakeDeploy();
+                      intake.intakeSuck();
+                    },
+                    () -> {
+                      intake.intakeOff();
+                      intake.intakeRetract();
+                    },
+                    intake)
+      );
 
     driver.leftBumper().onTrue( 
       new SequentialCommandGroup(
