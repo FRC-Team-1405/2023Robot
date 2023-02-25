@@ -14,8 +14,9 @@ import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
-  private WPI_TalonSRX upper = new WPI_TalonSRX(13);
-  private WPI_TalonSRX lower = new WPI_TalonSRX(14);
+  private WPI_TalonSRX upper = new WPI_TalonSRX(Constants.DeviceID.IntakeUpper);
+  private WPI_TalonSRX lower = new WPI_TalonSRX(Constants.DeviceID.IntakeLower);
+  private WPI_TalonSRX conveyerBelt = new WPI_TalonSRX(Constants.DeviceID.ConveyerBelt);
   @Override
   public void periodic() {
     // This method will be called once ;per scheduler run
@@ -43,5 +44,14 @@ public class Intake extends SubsystemBase {
   }
   public void intakeRetract(){
     intake.set(Value.kReverse);
+  }
+  public void conveyerBeltForward(){
+    conveyerBelt.set(Constants.Intake.ConveyerBeltSpeed);
+  }
+  public void conveyerBeltBackward(){
+    conveyerBelt.set(-Constants.Intake.ConveyerBeltSpeed);
+  }
+  public void conveyerBeltOff(){
+    conveyerBelt.set(0.0);
   }
 }
