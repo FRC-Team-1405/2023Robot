@@ -35,6 +35,7 @@ public class ScoreCommand extends ParallelCommandGroup{
         setLowPostition = new InstantCommand( () -> {position = Arm.Position.Low;} );
         setCustomPosition = new InstantCommand( () -> {position = Arm.Position.Custom;});
 
+
         addCommands( new ArmAngle(this.arm, () -> { return position;} ),
                      new ArmExtension(this.arm, () -> { return position;} ) );    
     }
