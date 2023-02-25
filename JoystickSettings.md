@@ -15,6 +15,7 @@ D-Pad Left-Move Left while Balancing
 D-Pad Right-Move Right while Balancing 
 D-Pad Up-
 D-Pad Down-
+
 OPERATOR
 right stick- While Pressed Claw Up and Down 
 left stick-While Pressed Claw Extension 
