@@ -28,6 +28,10 @@ public class Arm extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  public void onDisable(){
+    elbow.stop();
+    extension.stop();
+  }
   public enum Position {
     Home,
     Low,

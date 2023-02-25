@@ -59,6 +59,10 @@ public class RobotContainer {
                                                        this::getRotationSpeed, driveBase));
   }
 
+  public void disabledInit() {
+    arm.onDisable();
+  }
+
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
