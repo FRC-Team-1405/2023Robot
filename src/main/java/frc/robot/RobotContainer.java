@@ -12,6 +12,7 @@ import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.tools.DigitalToggle;
@@ -43,6 +44,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here... 
   private final SwerveDrive driveBase = new SwerveDrive();
   private final Arm arm = new Arm();
+  private final Intake intake = new Intake();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driver = new CommandXboxController(OperatorConstants.DriverControllerPort);
@@ -74,10 +76,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); }));
-    
-    driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
-
     ScoreCommand scoreCommand = new ScoreCommand(arm);
     operator.y().onTrue(scoreCommand.setHighPostition);
     operator.b().onTrue(scoreCommand.setMiddlePosition);
@@ -94,7 +92,21 @@ public class RobotContainer {
                               new AutoBalance.DropTrigger(driveBase),
                               new AutoBalance.BalanceTrigger(driveBase) ).repeatedly()
                           );
-
+    driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); }));
+    driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
+                      
+    driver.rightBumper()
+      .whileTrue( Commands.startEnd(
+                    () -> {
+                      intake.intakeDeploy();
+                      intake.intakeSuck();
+                    },
+                    () -> {
+                      intake.intakeOff();
+                      intake.intakeRetract();
+                    },
+                    intake)
+      );
 
     driver.leftBumper().onTrue( 
       new SequentialCommandGroup(
