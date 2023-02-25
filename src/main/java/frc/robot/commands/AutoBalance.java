@@ -19,26 +19,17 @@ public class AutoBalance {
     protected static final double PITCH_DELTA = 5.0;
     protected static final double PITCH_DROP_DELTA = 0.1;
     protected static final double PITCH_BALANCED = 1.5;
+
     public static CommandBase Command(SwerveDrive swerve, boolean forward) {
-        DoubleSupplier speedSupplier = new DoubleSupplier() {
-            private double speed = 0.12;
-            public double getAsDouble(){
-              if (speed <= 0.04) {
-                return speed;
-              }
-              speed -= 0.02;
-              return speed;
-            }
-          };
         return  new SequentialCommandGroup( new DriveToPitch(swerve, forward),
                                             new DropTrigger(swerve))
-        .andThen(   new SequentialCommandGroup( new Balance(swerve, speedSupplier),
+        .andThen(   new SequentialCommandGroup( new Balance(swerve),
                                                 new DropTrigger(swerve),
                                                 new BalanceTrigger(swerve) ).repeatedly()
                 );
     }
 
-    private static class Balance extends CommandBase {
+    public static class Balance extends CommandBase {
         private boolean forward;
 
         private Limelight limelight = new Limelight();
@@ -51,6 +42,20 @@ public class AutoBalance {
             addRequirements(swerveDrive);
             this.swerveDrive = swerveDrive; 
             this.speedSupplier = speedSupplier;
+        }
+
+        public Balance(SwerveDrive swerveDrive){
+            this(swerveDrive, 
+                 new DoubleSupplier() {
+                    private double speed = 0.12;
+                    public double getAsDouble(){
+                    if (speed <= 0.04) {
+                        return speed;
+                    }
+                    speed -= 0.02;
+                    return speed;
+                    }
+                });
         }
     
         // Called when the command is initially scheduled.
@@ -94,7 +99,7 @@ public class AutoBalance {
         } 
     }
 
-    private static class DropTrigger extends CommandBase {
+    public static class DropTrigger extends CommandBase {
         private SwerveDrive swerveDrive;
         private double pitch;
         public DropTrigger(SwerveDrive swerveDrive){
@@ -118,7 +123,7 @@ public class AutoBalance {
          } 
     }
 
-    private static class BalanceTrigger extends CommandBase {
+    public static class BalanceTrigger extends CommandBase {
         private SwerveDrive swerveDrive;
         public BalanceTrigger(SwerveDrive swerveDrive){
             this.swerveDrive = swerveDrive;
