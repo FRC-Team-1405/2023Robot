@@ -100,10 +100,12 @@ public class RobotContainer {
                     () -> {
                       intake.intakeDeploy();
                       intake.intakeSuck();
+                      intake.conveyerBeltForward();
                     },
                     () -> {
                       intake.intakeOff();
                       intake.intakeRetract();
+                      intake.conveyerBeltOff();
                     },
                     intake)
       );
