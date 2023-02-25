@@ -67,8 +67,8 @@ public final static class SwerveBase {
   public static class DeviceID {
     public static final int Elbow = 11;
     public static final int Extension = 12;
-    public static final int IntakeLeft = 13;
-    public static final int IntakeRight = 14;
+    public static final int IntakeUpper = 13;
+    public static final int IntakeLower = 14;
   }
 
   public static class PnuematicID {
@@ -98,12 +98,12 @@ public final static class SwerveBase {
   
   public static class Intake{
     static {
-      Preferences.initDouble("Intake/LeftSpeed", 0.25);
-      LeftSpeed = Preferences.getDouble("Intake/Left5peed", 0.25);
-      Preferences.initDouble("Intake/RightSpeed", -0.25);
-      RightSpeed = Preferences.getDouble("Intake/RightSpeed", -0.25);
+      Preferences.initDouble("Intake/UpperSpeed", 0.25);
+      UpperSpeed = Preferences.getDouble("Intake/UpperSpeed", 0.25);
+      Preferences.initDouble("Intake/LowerSpeed", -0.25);
+      LowerSpeed = Preferences.getDouble("Intake/LowerSpeed", -0.25);
     }
-    public static final double LeftSpeed;
-    public static final double RightSpeed;
+    public static final double UpperSpeed;
+    public static final double LowerSpeed;
   }
 }
