@@ -43,8 +43,8 @@ public class Arm extends SubsystemBase {
                                                     Constants.PnuematicID.ClawOpen, 
                                                     Constants.PnuematicID.ClawClosed);
 
-  private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 1000.0, 3);
-  private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 1000.0, 3);
+  private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 3);
+  private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 3);
 
   private DoubleSolenoid armBreak = new DoubleSolenoid( PneumaticsModuleType.CTREPCM,
                                                        Constants.PnuematicID.ArmBreakClose,
@@ -56,6 +56,72 @@ public class Arm extends SubsystemBase {
  
   public void closedClaw() {
     claw.set(Value.kForward);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  private double customArmAngle = Constants.Arm.ElbowPosition.elbowHome;
+  public void adjustElbowPosition(int positionAdjust){
+    double currentPosition = elbow.getPosition();
+    customArmAngle = currentPosition + positionAdjust;
+    elbow.setPosition(customArmAngle);
   }
 
   public void setElbowPosition(Position position){
@@ -76,15 +142,21 @@ public class Arm extends SubsystemBase {
         elbow.setPosition(Constants.Arm.ElbowPosition.elbowHigh);
         break;
       case Custom:
-        break;
-        // TODO Implement Custom
+        elbow.setPosition(customArmAngle);
+      break;
     }
+  }
+  private double customArmExtension = Constants.Arm.ExtensionPosition.extensionHome;
+  public void adjustExtensionPosition(int positionAdjust){
+    double currentPosition = extension.getPosition();
+    customArmAngle = currentPosition + positionAdjust;
+    extension.setPosition(customArmAngle);
   }
 
   public void setExtensionPosition(Position position){
     switch (position){
       case Home: 
-        extension.setPosition(Constants.Arm.ExtensionPosition.extensionHome);
+      extension.setPosition(Constants.Arm.ExtensionPosition.extensionHome);
         break;
       case Low: 
         extension.setPosition(Constants.Arm.ExtensionPosition.extensionLow);
@@ -96,7 +168,8 @@ public class Arm extends SubsystemBase {
         extension.setPosition(Constants.Arm.ExtensionPosition.extensionHigh);
         break;
       case Custom:
-      // TODO Implement Custom
+        extension.setPosition(customArmExtension);
+        break;
     }
   }
 

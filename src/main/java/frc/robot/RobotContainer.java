@@ -22,8 +22,12 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -65,8 +69,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); })); 
-    driver.b().whileTrue(new VisionAlignment(this::getXSpeed, 0, driveBase));
+    driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); }));
+    
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
 
     ScoreCommand scoreCommand = new ScoreCommand(arm);
@@ -74,11 +78,32 @@ public class RobotContainer {
     operator.b().onTrue(scoreCommand.setMiddlePosition);
     operator.a().onTrue(scoreCommand.setLowPostition);
     operator.x().onTrue(scoreCommand.setCustomPosition);
-    driver.a().whileTrue(scoreCommand);
+    operator.back().onTrue(new InstantCommand( driveBase::resetGyro ));
+    operator.leftBumper().whileTrue( Commands.run(() -> { arm.adjustElbowPosition( (int)(operator.getLeftY() * 1250));}, arm) );
+    operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
+    
+    CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
+    driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
 
-    // Trigger toggle = new Trigger(new DigitalToggle(0));
-    // Trigger robotEnabled = new Trigger( () -> { return RobotState.isDisabled(); } );
-    // toggle.and(robotEnabled).onTrue( new InstantCommand( driveBase::resetGyro ));
+
+    driver.leftBumper().onTrue( 
+      new SequentialCommandGroup(
+          new InstantCommand(arm::openClaw),
+          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+          new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+        )
+    );
+    driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
+                                             () -> { driveBase.parkingBrake(false);}));
+
+    Trigger scouchLeft = driver.povLeft().or( driver.povUpLeft() ).or( driver.povDownLeft() );
+    Trigger scouchRight = driver.povRight().or(driver.povDownRight()).or(driver.povUpRight());
+
+    CommandBase scouchDrive = new SwerveDriveCommand(  () -> { return 0.0; }, 
+                                                       () -> { return scouchLeft.getAsBoolean() ? 0.03 : -0.03;}, 
+                                                       () -> { return 0.0; }, driveBase);
+    scouchLeft.whileTrue( scouchDrive );
+    scouchRight.whileTrue( scouchDrive );
 
     CommandBase resetGyro = new InstantCommand( driveBase::resetGyro ) {
       public boolean runsWhenDisabled() {

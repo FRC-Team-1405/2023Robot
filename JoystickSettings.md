@@ -21,7 +21,7 @@ left stick-While Pressed Claw Extension
 A button-Low Scoring Selection
 B button-Middle Scoring Selection
 Y button-High Scoring Selection
-X button-
+X button-Custom Scoring Selection
 Right Bumper-
 Left Bumper-
 Right Trigger- 

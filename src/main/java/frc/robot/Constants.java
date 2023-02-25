@@ -89,10 +89,10 @@ public final static class SwerveBase {
     }
 
     public static class ExtensionPosition {
-      public static final int extensionHome = -6000;
+      public static final int extensionHome = -5000;
       public static final int extensionLow = -40000;
       public static final int extensionMedium = -120000;
-      public static final int extensionHigh = -230000;
+      public static final int extensionHigh = -200000;
     }
   }
   
