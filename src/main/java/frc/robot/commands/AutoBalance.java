@@ -5,14 +5,11 @@
 package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
-
-import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.sensors.Limelight;
 import frc.robot.sensors.Limelight.LED;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.tools.Stabilize;
 
 /** Add your docs here. */
 public class AutoBalance {
@@ -23,7 +20,7 @@ public class AutoBalance {
     public static CommandBase Command(SwerveDrive swerve, boolean forward) {
         return  new SequentialCommandGroup( new DriveToPitch(swerve, forward),
                                             new DropTrigger(swerve))
-        .andThen(   new SequentialCommandGroup( new Balance(swerve),
+        .andThen(   new SequentialCommandGroup( new Balance(swerve, () -> { return 0.0; }),
                                                 new DropTrigger(swerve),
                                                 new BalanceTrigger(swerve) ).repeatedly()
                 );
@@ -37,15 +34,18 @@ public class AutoBalance {
         private SwerveDrive swerveDrive;
         private DoubleSupplier speedSupplier;
         private double speed;
+        private DoubleSupplier ySpeed;
       
-        public Balance(SwerveDrive swerveDrive, DoubleSupplier speedSupplier) {
+        public Balance(SwerveDrive swerveDrive, DoubleSupplier ySpeed, DoubleSupplier speedSupplier) {
             addRequirements(swerveDrive);
             this.swerveDrive = swerveDrive; 
             this.speedSupplier = speedSupplier;
+            this.ySpeed = ySpeed;
         }
 
-        public Balance(SwerveDrive swerveDrive){
+        public Balance(SwerveDrive swerveDrive, DoubleSupplier speedSupplier){
             this(swerveDrive, 
+                 speedSupplier,
                  new DoubleSupplier() {
                     private double speed = 0.12;
                     public double getAsDouble(){
