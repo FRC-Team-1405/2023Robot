@@ -7,7 +7,6 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ResetGyro;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
@@ -19,10 +18,6 @@ import edu.wpi.first.wpilibj.PowerDistribution;
 import frc.robot.subsystems.SwerveModule;
 import frc.robot.tools.DigitalToggle;
 import frc.robot.tools.SwerveType;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DigitalOutput;
-import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -30,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -96,7 +90,7 @@ public class RobotContainer {
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
     driver.b().whileTrue( new SequentialCommandGroup( 
-                              new AutoBalance.Balance(driveBase),
+                              new AutoBalance.Balance(driveBase, this::getYSpeed),
                               new AutoBalance.DropTrigger(driveBase),
                               new AutoBalance.BalanceTrigger(driveBase) ).repeatedly()
                           );
@@ -127,15 +121,6 @@ public class RobotContainer {
     );
     driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
                                              () -> { driveBase.parkingBrake(false);}));
-
-    Trigger scouchLeft = driver.povLeft().or( driver.povUpLeft() ).or( driver.povDownLeft() );
-    Trigger scouchRight = driver.povRight().or(driver.povDownRight()).or(driver.povUpRight());
-
-    CommandBase scouchDrive = new SwerveDriveCommand(  () -> { return 0.0; }, 
-                                                       () -> { return scouchLeft.getAsBoolean() ? 0.03 : -0.03;}, 
-                                                       () -> { return 0.0; }, driveBase);
-    scouchLeft.whileTrue( scouchDrive );
-    scouchRight.whileTrue( scouchDrive );
 
     CommandBase resetGyro = new InstantCommand( driveBase::resetGyro ) {
       public boolean runsWhenDisabled() {
@@ -181,8 +166,14 @@ public class RobotContainer {
   }
 
   public double getYSpeed(){ 
+    int pov = driver.getHID().getPOV();
+
     double finalY;
-    if (Math.abs(driver.getLeftX()) <= 0.1)
+    if ( pov == 270 || pov == 315 || pov == 225)
+      finalY = 0.03;
+    else if(pov == 90 || pov == 45 || pov == 135)
+      finalY = -0.03;
+    else if (Math.abs(driver.getLeftX()) <= 0.1)
       finalY = 0.0;
     else
       finalY = driver.getLeftX() * 0.5 * (1.0 + driver.getLeftTriggerAxis());
