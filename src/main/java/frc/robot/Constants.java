@@ -70,6 +70,7 @@ public final static class SwerveBase {
     public static final int IntakeUpper = 13;
     public static final int IntakeLower = 14;
     public static final int ConveyerBelt = 15;
+    public static final int Twister = 16;
   }
 
   public static class PnuematicID {
@@ -105,9 +106,12 @@ public final static class SwerveBase {
       LowerSpeed = Preferences.getDouble("Intake/LowerSpeed", -0.25);
       Preferences.initDouble("ConveyerBelt/Speed", -0.25);
       ConveyerBeltSpeed = Preferences.getDouble("ConveyerBelt/Speed", -0.25);
+      Preferences.initDouble("Twister/Speed", 0.5);
+      Twister = Preferences.getDouble("Twister/Speed", 0.5);
     }
     public static final double UpperSpeed;
     public static final double LowerSpeed;
     public static final double ConveyerBeltSpeed;
+    public static final double Twister;
   }
 }
