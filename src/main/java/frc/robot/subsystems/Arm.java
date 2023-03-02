@@ -28,11 +28,16 @@ public class Arm extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  public void onDisable(){
+    elbow.stop();
+    extension.stop();
+  }
   public enum Position {
     Home,
     Low,
-    Medium,
+    Middle,
     High,
+    Custom,
   }
 
   private boolean elbowAtPosition = false;
@@ -42,8 +47,8 @@ public class Arm extends SubsystemBase {
                                                     Constants.PnuematicID.ClawOpen, 
                                                     Constants.PnuematicID.ClawClosed);
 
-  private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 50.0, 3);
-  private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 50.0, 3);
+  private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 3);
+  private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 3);
 
   private DoubleSolenoid armBreak = new DoubleSolenoid( PneumaticsModuleType.CTREPCM,
                                                        Constants.PnuematicID.ArmBreakClose,
@@ -57,6 +62,72 @@ public class Arm extends SubsystemBase {
     claw.set(Value.kForward);
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  private double customArmAngle = Constants.Arm.ElbowPosition.elbowHome;
+  public void adjustElbowPosition(int positionAdjust){
+    double currentPosition = elbow.getPosition();
+    customArmAngle = currentPosition + positionAdjust;
+    elbow.setPosition(customArmAngle);
+  }
+
   public void setElbowPosition(Position position){
     elbowAtPosition = false;
     armBreak.set(Value.kReverse);
@@ -68,28 +139,40 @@ public class Arm extends SubsystemBase {
       case Low: 
         elbow.setPosition(Constants.Arm.ElbowPosition.elbowLow);
         break;
-      case Medium:
+      case Middle:
         elbow.setPosition(Constants.Arm.ElbowPosition.elbowMedium);
         break;
       case High:
         elbow.setPosition(Constants.Arm.ElbowPosition.elbowHigh);
         break;
+      case Custom:
+        elbow.setPosition(customArmAngle);
+      break;
     }
+  }
+  private double customArmExtension = Constants.Arm.ExtensionPosition.extensionHome;
+  public void adjustExtensionPosition(int positionAdjust){
+    double currentPosition = extension.getPosition();
+    customArmAngle = currentPosition + positionAdjust;
+    extension.setPosition(customArmAngle);
   }
 
   public void setExtensionPosition(Position position){
     switch (position){
       case Home: 
-        extension.setPosition(Constants.Arm.ExtensionPosition.extensionHome);
+      extension.setPosition(Constants.Arm.ExtensionPosition.extensionHome);
         break;
       case Low: 
         extension.setPosition(Constants.Arm.ExtensionPosition.extensionLow);
         break;
-      case Medium:
+      case Middle:
         extension.setPosition(Constants.Arm.ExtensionPosition.extensionMedium);
         break;
       case High:
         extension.setPosition(Constants.Arm.ExtensionPosition.extensionHigh);
+        break;
+      case Custom:
+        extension.setPosition(customArmExtension);
         break;
     }
   }

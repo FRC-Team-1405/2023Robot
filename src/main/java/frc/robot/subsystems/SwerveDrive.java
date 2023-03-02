@@ -55,10 +55,30 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
     }
   }
 
+  final static double kCollisionThreshold_DeltaG = 1.0f; 
+  private double last_world_linear_accel_x;
+  private double last_world_linear_accel_y;
+  private boolean collisionDetected = false;
+  
+  public boolean collisionDetected(){
+    double curr_world_linear_accel_x = gyro.getWorldLinearAccelX();
+    double currentJerkX = curr_world_linear_accel_x - last_world_linear_accel_x;
+    last_world_linear_accel_x = curr_world_linear_accel_x;
+    double curr_world_linear_accel_y = gyro.getWorldLinearAccelY();
+    double currentJerkY = curr_world_linear_accel_y - last_world_linear_accel_y;
+    last_world_linear_accel_y = curr_world_linear_accel_y;
+
+    SmartDashboard.putNumber("SwerveDrive/Collision-X", currentJerkX);
+    SmartDashboard.putNumber("SwerveDrive/Collision-Y", currentJerkY);
+
+    return (  ( Math.abs(currentJerkX) > kCollisionThreshold_DeltaG ) ||
+              ( Math.abs(currentJerkY) > kCollisionThreshold_DeltaG) );
+  }
 
   @Override
   public void periodic() {
     updateOdometry(); 
+
     SmartDashboard.putNumber("angle", gyro.getAngle()); 
     SmartDashboard.putNumber("pitch", getPitch());
     SmartDashboard.putNumber("distance x",odometry.getPoseMeters().getX()); 
