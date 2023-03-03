@@ -70,6 +70,7 @@ public final static class SwerveBase {
     public static final int IntakeUpper = 13;
     public static final int IntakeLower = 14;
     public static final int ConveyerBelt = 15;
+    public static final int Twister = 16;
   }
 
   public static class PnuematicID {
@@ -77,23 +78,25 @@ public final static class SwerveBase {
     public static final int ClawClosed = 5;
     public static final int IntakeDeploy = 6;
     public static final int IntakeRetract = 1;
-    public static final int ArmBreakClose = 3;
-    public static final int ArmBreakOpen = 4;
+    public static final int ArmBrakeClose = 3;
+    public static final int ArmBrakeOpen = 4;
   }
 
   public static class Arm {
     public static class ElbowPosition {
-      public static final int elbowHome = -0;
-      public static final int elbowLow = -25000;
-      public static final int elbowMedium = -70000;
-      public static final int elbowHigh = -100000;
+      public static final int ElbowGrab = -0;
+      public static final int ElbowHome = -0;
+      public static final int ElbowLow = -25000;
+      public static final int ElbowMedium = -70000;
+      public static final int ElbowHigh = -100000;
     }
 
     public static class ExtensionPosition {
-      public static final int extensionHome = -5000;
-      public static final int extensionLow = -40000;
-      public static final int extensionMedium = -120000;
-      public static final int extensionHigh = -200000;
+      public static final int ExtensionGrab = -6000;
+      public static final int ExtensionHome = -5000;
+      public static final int ExtensionLow = -40000;
+      public static final int ExtensionMedium = -120000;
+      public static final int ExtensionHigh = -200000;
     }
   }
   
@@ -105,9 +108,12 @@ public final static class SwerveBase {
       LowerSpeed = Preferences.getDouble("Intake/LowerSpeed", -0.25);
       Preferences.initDouble("ConveyerBelt/Speed", -0.25);
       ConveyerBeltSpeed = Preferences.getDouble("ConveyerBelt/Speed", -0.25);
+      Preferences.initDouble("Twister/Speed", 0.5);
+      Twister = Preferences.getDouble("Twister/Speed", 0.5);
     }
     public static final double UpperSpeed;
     public static final double LowerSpeed;
     public static final double ConveyerBeltSpeed;
+    public static final double Twister;
   }
 }
