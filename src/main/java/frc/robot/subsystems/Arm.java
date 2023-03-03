@@ -33,6 +33,7 @@ public class Arm extends SubsystemBase {
     extension.stop();
   }
   public enum Position {
+    Grab,
     Home,
     Low,
     Middle,
@@ -61,67 +62,8 @@ public class Arm extends SubsystemBase {
   public void closedClaw() {
     claw.set(Value.kForward);
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  private double customArmAngle = Constants.Arm.ElbowPosition.elbowHome;
+  
+  private double customArmAngle = Constants.Arm.ElbowPosition.ElbowHome;
   public void adjustElbowPosition(int positionAdjust){
     double currentPosition = elbow.getPosition();
     customArmAngle = currentPosition + positionAdjust;
@@ -133,24 +75,26 @@ public class Arm extends SubsystemBase {
     armBreak.set(Value.kReverse);
     breakClosed = false;
     switch (position){
+      case Grab:
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowGrab);
       case Home: 
-        elbow.setPosition(Constants.Arm.ElbowPosition.elbowHome);
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowHome);
         break;
       case Low: 
-        elbow.setPosition(Constants.Arm.ElbowPosition.elbowLow);
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowLow);
         break;
       case Middle:
-        elbow.setPosition(Constants.Arm.ElbowPosition.elbowMedium);
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowMedium);
         break;
       case High:
-        elbow.setPosition(Constants.Arm.ElbowPosition.elbowHigh);
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowHigh);
         break;
       case Custom:
         elbow.setPosition(customArmAngle);
       break;
     }
   }
-  private double customArmExtension = Constants.Arm.ExtensionPosition.extensionHome;
+  private double customArmExtension = Constants.Arm.ExtensionPosition.ExtensionHome;
   public void adjustExtensionPosition(int positionAdjust){
     double currentPosition = extension.getPosition();
     customArmAngle = currentPosition + positionAdjust;
@@ -159,17 +103,19 @@ public class Arm extends SubsystemBase {
 
   public void setExtensionPosition(Position position){
     switch (position){
+      case Grab:
+      extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionGrab);
       case Home: 
-      extension.setPosition(Constants.Arm.ExtensionPosition.extensionHome);
+      extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionHome);
         break;
       case Low: 
-        extension.setPosition(Constants.Arm.ExtensionPosition.extensionLow);
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionLow);
         break;
       case Middle:
-        extension.setPosition(Constants.Arm.ExtensionPosition.extensionMedium);
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionMedium);
         break;
       case High:
-        extension.setPosition(Constants.Arm.ExtensionPosition.extensionHigh);
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionHigh);
         break;
       case Custom:
         extension.setPosition(customArmExtension);
