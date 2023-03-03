@@ -84,17 +84,19 @@ public final static class SwerveBase {
 
   public static class Arm {
     public static class ElbowPosition {
-      public static final int elbowHome = -0;
-      public static final int elbowLow = -25000;
-      public static final int elbowMedium = -70000;
-      public static final int elbowHigh = -100000;
+      public static final int ElbowGrab = -0;
+      public static final int ElbowHome = -0;
+      public static final int ElbowLow = -25000;
+      public static final int ElbowMedium = -70000;
+      public static final int ElbowHigh = -100000;
     }
 
     public static class ExtensionPosition {
-      public static final int extensionHome = -5000;
-      public static final int extensionLow = -40000;
-      public static final int extensionMedium = -120000;
-      public static final int extensionHigh = -200000;
+      public static final int ExtensionGrab = -6000;
+      public static final int ExtensionHome = -5000;
+      public static final int ExtensionLow = -40000;
+      public static final int ExtensionMedium = -120000;
+      public static final int ExtensionHigh = -200000;
     }
   }
   
