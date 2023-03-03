@@ -11,16 +11,21 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.sensors.FusionTimeofFlight;
 
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   private WPI_TalonSRX upper = new WPI_TalonSRX(Constants.DeviceID.IntakeUpper);
   private WPI_TalonSRX lower = new WPI_TalonSRX(Constants.DeviceID.IntakeLower);
   private WPI_TalonSRX conveyerBelt = new WPI_TalonSRX(Constants.DeviceID.ConveyerBelt);
-  private WPI_TalonSRX twister = new WPI_TalonSRX(Constants.DeviceID.Twister);
+  private WPI_TalonSRX twister = new WPI_TalonSRX(Constants.DeviceID.Twister); 
+
+  private FusionTimeofFlight gamePieceSensor = new FusionTimeofFlight(17); 
+
   @Override
   public void periodic() {
-    // This method will be called once ;per scheduler run
+    // This method will be called once ;per scheduler run 
+    gamePieceSensor.measure();
   }
 
   private DoubleSolenoid intake = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 
