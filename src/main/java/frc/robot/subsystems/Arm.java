@@ -33,12 +33,12 @@ public class Arm extends SubsystemBase {
     extension.stop();
   }
   public enum Position {
-    Grab,
     Home,
     Low,
     Middle,
     High,
     Custom,
+    Grab,
   }
 
   private boolean elbowAtPosition = false;
@@ -62,7 +62,7 @@ public class Arm extends SubsystemBase {
   public void closedClaw() {
     claw.set(Value.kForward);
   }
-  
+
   private double customArmAngle = Constants.Arm.ElbowPosition.ElbowHome;
   public void adjustElbowPosition(int positionAdjust){
     double currentPosition = elbow.getPosition();
@@ -75,8 +75,6 @@ public class Arm extends SubsystemBase {
     armBreak.set(Value.kReverse);
     breakClosed = false;
     switch (position){
-      case Grab:
-        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowGrab);
       case Home: 
         elbow.setPosition(Constants.Arm.ElbowPosition.ElbowHome);
         break;
@@ -103,8 +101,6 @@ public class Arm extends SubsystemBase {
 
   public void setExtensionPosition(Position position){
     switch (position){
-      case Grab:
-      extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionGrab);
       case Home: 
       extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionHome);
         break;
