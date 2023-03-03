@@ -52,8 +52,8 @@ public class Arm extends SubsystemBase {
   private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 3);
 
   private DoubleSolenoid armBreak = new DoubleSolenoid( PneumaticsModuleType.CTREPCM,
-                                                       Constants.PnuematicID.ArmBreakClose,
-                                                       Constants.PnuematicID.ArmBreakOpen);
+                                                       Constants.PnuematicID.ArmBrakeClose,
+                                                       Constants.PnuematicID.ArmBrakeOpen);
   public void openClaw() {
     claw.set(Value.kReverse);
   }
