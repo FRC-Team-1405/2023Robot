@@ -78,8 +78,8 @@ public final static class SwerveBase {
     public static final int ClawClosed = 1;
     public static final int IntakeDeploy = 2;
     public static final int IntakeRetract = 3;
-    public static final int ArmBreakClose = 4;
-    public static final int ArmBreakOpen = 5;
+    public static final int ArmBrakeClose = 4;
+    public static final int ArmBrakeOpen = 5;
   }
 
   public static class Arm {
