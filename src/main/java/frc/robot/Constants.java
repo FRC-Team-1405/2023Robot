@@ -73,12 +73,12 @@ public final static class SwerveBase {
   }
 
   public static class PnuematicID {
-    public static final int ClawOpen = 0;
-    public static final int ClawClosed = 1;
-    public static final int IntakeDeploy = 2;
-    public static final int IntakeRetract = 3;
-    public static final int ArmBreakClose = 4;
-    public static final int ArmBreakOpen = 5;
+    public static final int ClawOpen = 2;
+    public static final int ClawClosed = 5;
+    public static final int IntakeDeploy = 6;
+    public static final int IntakeRetract = 1;
+    public static final int ArmBreakClose = 3;
+    public static final int ArmBreakOpen = 4;
   }
 
   public static class Arm {
