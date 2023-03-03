@@ -98,16 +98,47 @@ public class RobotContainer {
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
                       
     driver.rightBumper()
+      .onTrue(Commands.parallel(
+        Commands.run( ()-> {
+          intake.intakeDeploy();
+          intake.intakeSuck();
+          intake.conveyerBeltForward();
+          intake.twisterForward();},
+          intake),
+        Commands.sequence(
+          new InstantCommand(arm::openClaw),
+          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+          new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+        )
+      ))
+      .onFalse(Commands.parallel(
+        Commands.run( ()-> {
+          intake.intakeRetract();
+          intake.intakeOff();
+          intake.conveyerBeltOff();
+          intake.twisterOff();},
+          intake),
+        Commands.sequence(
+          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+          new InstantCommand(arm::closedClaw)
+        )
+      ));
+
+    driver.rightBumper()
       .whileTrue( Commands.startEnd(
                     () -> {
                       intake.intakeDeploy();
                       intake.intakeSuck();
                       intake.conveyerBeltForward();
+                      intake.twisterForward();
+                      arm.openClaw();
                     },
                     () -> {
                       intake.intakeOff();
                       intake.intakeRetract();
                       intake.conveyerBeltOff();
+                      intake.twisterOff();
+                      arm.closedClaw();
                     },
                     intake)
       );
