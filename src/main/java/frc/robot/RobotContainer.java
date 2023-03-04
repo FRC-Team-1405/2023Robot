@@ -81,8 +81,8 @@ public class RobotContainer {
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
     driver.b().whileTrue( new SequentialCommandGroup( 
                               new AutoBalance.Balance(driveBase, this::getYSpeed),
-                              new AutoBalance.DropTrigger(driveBase),
-                              new AutoBalance.BalanceTrigger(driveBase) ).repeatedly()
+                              new AutoBalance.DropTrigger(driveBase, this::getYSpeed),
+                              new AutoBalance.BalanceTrigger(driveBase, this::getYSpeed) ).repeatedly()
                           );
     driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); }));
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
@@ -114,25 +114,6 @@ public class RobotContainer {
         )
       ));
 
-    driver.rightBumper()
-      .whileTrue( Commands.startEnd(
-                    () -> {
-                      intake.intakeDeploy();
-                      intake.intakeSuck();
-                      intake.conveyerBeltForward();
-                      intake.twisterForward();
-                      arm.openClaw();
-                    },
-                    () -> {
-                      intake.intakeOff();
-                      intake.intakeRetract();
-                      intake.conveyerBeltOff();
-                      intake.twisterOff();
-                      arm.closedClaw();
-                    },
-                    intake)
-      );
-
     driver.leftBumper().onTrue( 
       new SequentialCommandGroup(
           new InstantCommand(arm::openClaw),
@@ -143,15 +124,12 @@ public class RobotContainer {
     driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
                                              () -> { driveBase.parkingBrake(false);}));
 
-    CommandBase resetGyro = new InstantCommand( driveBase::resetGyro ) {
+    operator.back().onTrue( new InstantCommand( driveBase::resetGyro ) {
       public boolean runsWhenDisabled() {
         return true;
       }    
-    }.andThen(new WaitCommand(10));
+    });
 
-    resetGyro.setName("Reset Gyro Command");
-    SmartDashboard.putData("Reset Gyro", resetGyro);
-    
   }
   
   private void ConfigShuffleboard(){
@@ -165,6 +143,12 @@ public class RobotContainer {
                                                             driveBase);
 
     SmartDashboard.putData("Swerve/Start", swerveDrive);
+
+    SmartDashboard.putData("Intake/Deploy", intake.run( intake::intakeDeploy ));
+    SmartDashboard.putData("Intake/Retract", intake.run( intake::intakeRetract ));
+    SmartDashboard.putData("Claw/Open", arm.run( arm::openClaw ));
+    SmartDashboard.putData("Claw/Close", arm.run( arm::closedClaw ));
+
   }
 
   /**
@@ -191,9 +175,9 @@ public class RobotContainer {
 
     double finalY;
     if ( pov == 270 || pov == 315 || pov == 225)
-      finalY = 0.03;
+      finalY = 0.05;
     else if(pov == 90 || pov == 45 || pov == 135)
-      finalY = -0.03;
+      finalY = -0.05;
     else if (Math.abs(driver.getLeftX()) <= 0.1)
       finalY = 0.0;
     else
