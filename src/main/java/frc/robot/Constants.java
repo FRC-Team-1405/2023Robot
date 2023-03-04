@@ -67,8 +67,7 @@ public final static class SwerveBase {
   public static class DeviceID {
     public static final int Elbow = 11;
     public static final int Extension = 12;
-    public static final int IntakeUpper = 13;
-    public static final int IntakeLower = 14;
+    public static final int Intake = 13;
     public static final int ConveyerBelt = 15;
     public static final int Twister = 16;
   }
