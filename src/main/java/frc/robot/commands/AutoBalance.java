@@ -19,10 +19,10 @@ public class AutoBalance {
 
     public static CommandBase Command(SwerveDrive swerve, boolean forward) {
         return  new SequentialCommandGroup( new DriveToPitch(swerve, forward),
-                                            new DropTrigger(swerve))
+                                            new DropTrigger(swerve, () -> { return 0.0;} ))
         .andThen(   new SequentialCommandGroup( new Balance(swerve, () -> { return 0.0; }),
-                                                new DropTrigger(swerve),
-                                                new BalanceTrigger(swerve) ).repeatedly()
+                                                new DropTrigger(swerve, () -> { return 0.0; }),
+                                                new BalanceTrigger(swerve, () -> { return 0.0; }) ).repeatedly()
                 );
     }
 
@@ -79,13 +79,12 @@ public class AutoBalance {
         // Called every time the scheduler runs while the command is scheduled.
         @Override
         public void execute() {
-            swerveDrive.drive((forward ? speed : -speed), 0, 0);
+            swerveDrive.drive((forward ? speed : -speed), speedSupplier.getAsDouble(), 0);
         }
         
         // Called once the command ends or is interrupted.
         @Override
         public void end(boolean interrupted) { 
-            System.out.println("stop");
             swerveDrive.drive(0.0, 0, 0);
             limelight.setLED(LED.Blink);
         }
@@ -101,9 +100,11 @@ public class AutoBalance {
 
     public static class DropTrigger extends CommandBase {
         private SwerveDrive swerveDrive;
+        private DoubleSupplier speedSupplier;
         private double pitch;
-        public DropTrigger(SwerveDrive swerveDrive){
+        public DropTrigger(SwerveDrive swerveDrive, DoubleSupplier speedSupplier){
             this.swerveDrive = swerveDrive;
+            this.speedSupplier = speedSupplier;
          }
 
          @Override
@@ -111,6 +112,14 @@ public class AutoBalance {
             pitch = swerveDrive.getPitch();
          }
               
+         @Override
+         public void execute() {
+            swerveDrive.drive(0, speedSupplier.getAsDouble(), 0);
+         }
+         @Override
+         public void end(boolean interrupted) { 
+             swerveDrive.drive(0.0, 0, 0);
+         }
          // Returns true when the command should end.
          @Override
          public boolean isFinished() { 
@@ -121,12 +130,14 @@ public class AutoBalance {
             pitch = new_pitch;
             return false; 
          } 
-    }
+     }
 
     public static class BalanceTrigger extends CommandBase {
         private SwerveDrive swerveDrive;
-        public BalanceTrigger(SwerveDrive swerveDrive){
+        private DoubleSupplier speedSupplier;
+        public BalanceTrigger(SwerveDrive swerveDrive, DoubleSupplier speedSupplier){
             this.swerveDrive = swerveDrive;
+            this.speedSupplier = speedSupplier;
          }
               
          // Returns true when the command should end.
@@ -135,5 +146,13 @@ public class AutoBalance {
             double pitch = Math.abs(swerveDrive.getPitch());
             return pitch > PITCH_BALANCED;
          } 
+         @Override
+         public void execute() {
+            swerveDrive.drive(0, speedSupplier.getAsDouble(), 0);
+         }
+         @Override
+         public void end(boolean interrupted) { 
+             swerveDrive.drive(0.0, 0, 0);
+         }
     }
 }
