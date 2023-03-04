@@ -66,6 +66,7 @@ public class RobotContainer {
 
   public void disabledInit() {
     arm.onDisable();
+    intake.onDisable();
   }
 
   /**

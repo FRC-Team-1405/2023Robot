@@ -86,7 +86,6 @@ public class AutoBalance {
         @Override
         public void end(boolean interrupted) { 
             swerveDrive.drive(0.0, 0, 0);
-            limelight.setLED(LED.Blink);
         }
         
         // Returns true when the command should end.
