@@ -52,6 +52,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   public void resetGyro(){
     if (gyro != null){
       gyro.reset();
+      gyro.setAngleAdjustment(180.0);
     }
   }
 
