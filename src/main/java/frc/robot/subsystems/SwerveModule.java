@@ -190,7 +190,7 @@ public class SwerveModule extends SubsystemBase {
     // double current_alt = driveMotor.getSensorCollection().getIntegratedSensorPosition();
     double delta = (current - distance);
     distance = current;
-    return Constants.SwerveBase.ticksToMetere(delta);
+    return Constants.SwerveBase.ticksToMeter(delta);
   } 
 
   public void brakeMode(){ 
