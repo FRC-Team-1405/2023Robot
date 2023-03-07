@@ -59,7 +59,7 @@ public class VisionAlignment extends CommandBase {
       if(limelight.hasTarget()){
         double angle = limelight.getTX();
         double theta = swerve.getPose().getRotation().getRadians();
-        double speed = xController.calculate( angle ); 
+        double speed = xController.calculate( -angle ); 
         double zSpeed = zController.calculate( theta );
         SmartDashboard.putNumber("Error", xController.getPositionError()); 
         SmartDashboard.putNumber("Speed", speed); 

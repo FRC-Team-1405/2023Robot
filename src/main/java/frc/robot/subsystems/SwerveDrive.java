@@ -181,17 +181,18 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
       return Math.PI;
   } 
 
-  private double distance = 0.0;
   public void resetDistance(){
     frontLeft.getDistance();
     frontRight.getDistance();
     backLeft.getDistance();
     backRight.getDistance();
-    distance = 0.0;
   }
   public double getDistance(){
-    distance += (frontLeft.getDistance() + frontRight.getDistance() + backLeft.getDistance() + backRight.getDistance()) / 4.0;
-    return distance / Constants.SwerveBase.DRIVE_MOTOR_ENCODER_RESOLUTION / Constants.SwerveBase.GEAR_RATIO * Constants.SwerveBase.WHEEL_CIRCUMFERENCE;
+    double distance = ( Math.abs(frontLeft.getDistance())
+                       + Math.abs(frontRight.getDistance())
+                       + Math.abs(backLeft.getDistance())
+                       + Math.abs(backRight.getDistance())) / 4.0;
+    return Constants.SwerveBase.ticksToMeter(distance);
   } 
 
  public double getGyroAngle(){

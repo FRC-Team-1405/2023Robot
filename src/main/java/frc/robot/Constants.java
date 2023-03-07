@@ -46,7 +46,7 @@ public final static class SwerveBase {
   public static final double TIME_CONSTANT_FOR_CONVERSION = 10; 
   public static final double GEAR_RATIO = 6.5;
   public static final double TICKS_PER_ROTATION = DRIVE_MOTOR_ENCODER_RESOLUTION * GEAR_RATIO;
-  public static final double ticksToMetere(double ticks){
+  public static final double ticksToMeter(double ticks){
     return (ticks / TICKS_PER_ROTATION) * WHEEL_CIRCUMFERENCE;
   }
 
