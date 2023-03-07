@@ -186,9 +186,9 @@ public class RobotContainer {
 
     double finalY;
     if ( pov == 270 || pov == 315 || pov == 225)
-      finalY = 0.05;
-    else if(pov == 90 || pov == 45 || pov == 135)
       finalY = -0.05;
+    else if(pov == 90 || pov == 45 || pov == 135)
+      finalY = 0.05;
     else if (Math.abs(driver.getLeftX()) <= 0.1)
       finalY = 0.0;
     else
