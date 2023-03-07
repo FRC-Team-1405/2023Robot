@@ -168,7 +168,7 @@ public class RobotContainer {
     if (Math.abs(driver.getLeftY()) <= 0.1)
       finalX = 0.0;
     else
-      finalX = driver.getLeftY() * 0.5 * (1.0 + driver.getLeftTriggerAxis());
+      finalX = driver.getLeftY() * 0.75 * (1.0 + driver.getLeftTriggerAxis());
     
     return finalX;
   }
@@ -184,7 +184,7 @@ public class RobotContainer {
     else if (Math.abs(driver.getLeftX()) <= 0.1)
       finalY = 0.0;
     else
-      finalY = driver.getLeftX() * 0.5 * (1.0 + driver.getLeftTriggerAxis());
+      finalY = driver.getLeftX() * 0.75 * (1.0 + driver.getLeftTriggerAxis());
     
     if (SwerveType.isStandard())
       finalY = -finalY;
