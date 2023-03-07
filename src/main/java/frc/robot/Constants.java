@@ -70,8 +70,7 @@ public final static class SwerveBase {
   public static class DeviceID {
     public static final int Elbow = 11;
     public static final int Extension = 12;
-    public static final int IntakeUpper = 13;
-    public static final int IntakeLower = 14;
+    public static final int Intake = 13;
     public static final int ConveyerBelt = 15;
     public static final int Twister = 16;
   }
@@ -109,8 +108,8 @@ public final static class SwerveBase {
       UpperSpeed = Preferences.getDouble("Intake/UpperSpeed", 0.25);
       Preferences.initDouble("Intake/LowerSpeed", -0.25);
       LowerSpeed = Preferences.getDouble("Intake/LowerSpeed", -0.25);
-      Preferences.initDouble("ConveyerBelt/Speed", -0.25);
-      ConveyerBeltSpeed = Preferences.getDouble("ConveyerBelt/Speed", -0.25);
+      Preferences.initDouble("ConveyerBelt/Speed", 0.5);
+      ConveyerBeltSpeed = Preferences.getDouble("ConveyerBelt/Speed",0.5);
       Preferences.initDouble("Twister/Speed", 0.5);
       Twister = Preferences.getDouble("Twister/Speed", 0.5);
     }

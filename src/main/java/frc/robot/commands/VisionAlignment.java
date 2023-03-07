@@ -77,7 +77,7 @@ public class VisionAlignment extends CommandBase {
     }
 
     private void setPosition(double speed, double zSpeed) {
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(forwardSpeed.getAsDouble(), -speed, zSpeed);
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(forwardSpeed.getAsDouble(), speed, zSpeed);
         SwerveModuleState[] moduleStates = swerve.getKinematics().toSwerveModuleStates(chassisSpeeds) ;
         swerve.setModuleStates( moduleStates);
     }

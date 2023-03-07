@@ -15,8 +15,7 @@ import frc.robot.sensors.FusionTimeofFlight;
 
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
-  private WPI_TalonSRX upper = new WPI_TalonSRX(Constants.DeviceID.IntakeUpper);
-  private WPI_TalonSRX lower = new WPI_TalonSRX(Constants.DeviceID.IntakeLower);
+  private WPI_TalonSRX upper = new WPI_TalonSRX(Constants.DeviceID.Intake);
   private WPI_TalonSRX conveyerBelt = new WPI_TalonSRX(Constants.DeviceID.ConveyerBelt);
   private WPI_TalonSRX twister = new WPI_TalonSRX(Constants.DeviceID.Twister); 
 
@@ -35,15 +34,12 @@ public class Intake extends SubsystemBase {
   public Intake() {}
   public void intakeSuck(){
     upper.set(Constants.Intake.UpperSpeed);
-    lower.set(Constants.Intake.LowerSpeed);
   }
   public void intakePush(){
     upper.set(-Constants.Intake.UpperSpeed);
-    lower.set(-Constants.Intake.LowerSpeed);
   }
   public void intakeOff(){
     upper.set(0.0);
-    lower.set(0.0);
   }
   public void intakeDeploy(){
     intake.set(Value.kForward);
@@ -71,7 +67,6 @@ public class Intake extends SubsystemBase {
   }
   public void onDisable(){
     upper.set(0.0);
-    lower.set(0.0);
     twister.set(0.0);
     conveyerBelt.set(0.0);
   }
