@@ -7,7 +7,7 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
-import frc.robot.commands.BackUp;
+import frc.robot.commands.AutoDrive;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
@@ -15,6 +15,7 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.tools.SwerveType;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -80,7 +81,7 @@ public class RobotContainer {
     operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
     
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
-    driver.x().onTrue(new BackUp(driveBase));
+    driver.x().onTrue(new AutoDrive(driveBase, 0.1, 0.0, Units.inchesToMeters(6.0)));
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
     driver.b().whileTrue( new SequentialCommandGroup( 
                               new AutoBalance.Balance(driveBase, this::getYSpeed),
