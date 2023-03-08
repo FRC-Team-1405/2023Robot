@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -171,12 +172,13 @@ public class SwerveModule extends SubsystemBase {
   }
 
   public double distance ;
+  public double totalMeters = 0;
   public double getDistance() {
-    // double current = driveMotor.getSelectedSensorPosition() ;
-    double current = driveMotor.getSensorCollection().getIntegratedSensorPosition();
-    double delta = Math.abs(current - distance);
+    double current = driveMotor.getSelectedSensorPosition() ;
+    // double current_alt = driveMotor.getSensorCollection().getIntegratedSensorPosition();
+    double delta = (current - distance);
     distance = current;
-    return delta;
+    return Constants.SwerveBase.ticksToMeter(delta);
   } 
 
   public void brakeMode(){ 

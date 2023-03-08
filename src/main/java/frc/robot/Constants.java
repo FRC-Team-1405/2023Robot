@@ -39,19 +39,22 @@ public final static class SwerveBase {
   public final static int ENCODERBACKLEFT = 33;
   public final static int ENCODERBACKRIGHT = 34; 
 
-  public final static double WHEELRADIUS = 0.0508; 
-  // public final static double WHEELCIRCUMFERENCE = WHEELRADIUS * 2 * Math.PI;
-  public final static double WHEELCIRCUMFERENCE = Units.inchesToMeters(12.875);
-  public final static double DRIVEMOTORENCODERRESOLUTION = 2048;  
+  public final static double WHEELRADIUS = 2; // inches 
+  public final static double WHEEL_CIRCUMFERENCE =Units.inchesToMeters(WHEELRADIUS * 2 * Math.PI); 
+  public final static double DRIVE_MOTOR_ENCODER_RESOLUTION = 2048;  
   //For converting 100 milleseconds (heretofore referred to as 'ms') to seconds 
-  public static final double TIMECONSTANTFORCONVERSION = 10; 
-  public static final double GEARATIO = 6;
+  public static final double TIME_CONSTANT_FOR_CONVERSION = 10; 
+  public static final double GEAR_RATIO = 6.5;
+  public static final double TICKS_PER_ROTATION = DRIVE_MOTOR_ENCODER_RESOLUTION * GEAR_RATIO;
+  public static final double ticksToMeter(double ticks){
+    return (ticks / TICKS_PER_ROTATION) * WHEEL_CIRCUMFERENCE;
+  }
 
   //A simple conversion formula to turn encoder velocity (sensor units/100ms) to meters per second 
-  public static final double VELOCITYMETERS = 1 / DRIVEMOTORENCODERRESOLUTION * WHEELCIRCUMFERENCE * 1 / GEARATIO * TIMECONSTANTFORCONVERSION;
+  public static final double VELOCITYMETERS = 1 / DRIVE_MOTOR_ENCODER_RESOLUTION * WHEEL_CIRCUMFERENCE * 1 / GEAR_RATIO * TIME_CONSTANT_FOR_CONVERSION;
 
   // A simple conversion formula to turn meters per second to encoder velocity
-  public static final double VELOCITYSENSOR = DRIVEMOTORENCODERRESOLUTION * 1 / WHEELCIRCUMFERENCE * GEARATIO * 1 / TIMECONSTANTFORCONVERSION;
+  public static final double VELOCITYSENSOR = DRIVE_MOTOR_ENCODER_RESOLUTION * 1 / WHEEL_CIRCUMFERENCE * GEAR_RATIO * 1 / TIME_CONSTANT_FOR_CONVERSION;
 
   public static final double MAXANGULARSPEED = 1; 
   public static final double MAXANGULARACCELERARTION = 1; 
