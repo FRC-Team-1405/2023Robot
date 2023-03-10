@@ -6,8 +6,11 @@ package frc.robot.subsystems;
 //CTRE deps
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderStatusFrame;
+
 //WPILIB deps
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -72,6 +75,27 @@ public class SwerveModule extends SubsystemBase {
     steeringMotor = new WPI_TalonFX(steeringMotorID); 
     steeringEncoder = new CANCoder(steeringEncoderID);
     
+    driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 253);//TODO: rethink if we need this speed, I don't think we do
+    driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);//This is key to odometry must be around same as code loop
+    driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_3_Quadrature, 251);
+    driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_4_AinTempVbat, 241);
+    driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 239);
+    driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 233);
+    driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_14_Turn_PIDF1, 229);
+    driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_15_FirmwareApiStatus, 255);
+
+    steeringMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 240);//This packet is the motor output, limit switches, faults, we care about none of those
+    steeringMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 20);//This is the sensor feedback, i.e. relative encoder
+    steeringMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_3_Quadrature, 251);
+    steeringMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_4_AinTempVbat, 241);
+    steeringMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 239);
+    steeringMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 233);
+    steeringMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_14_Turn_PIDF1, 229);
+    steeringMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_15_FirmwareApiStatus, 255);    
+
+    steeringEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 20);//The default on this is 10, but 20 might be better given our code loop rate
+    steeringEncoder.setStatusFramePeriod(CANCoderStatusFrame.VbatAndFaults, 255);
+
     String prefKey = String.format("SwerveModule/Offset_%02d", steeringMotorID);
     Preferences.initDouble(prefKey, offsets[steeringMotorID-ENCODER_BASE]);
     offsets[steeringMotorID-ENCODER_BASE] =  Preferences.getDouble(prefKey, offsets[steeringMotorID-ENCODER_BASE]);
