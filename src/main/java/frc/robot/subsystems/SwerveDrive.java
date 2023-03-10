@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.SPI;
 
@@ -34,7 +35,7 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   private final AHRS gyro = new AHRS(SPI.Port.kMXP); // = new AHRS(SPI.Port.kMXP); Causing exception
 
   private final SwerveDriveOdometry odometry = 
-          new SwerveDriveOdometry(Constants.SwerveBase.KINEMATICS, gyro.getRotation2d(), getSwerveModulePositions()); 
+          new SwerveDriveOdometry(Constants.SwerveBase.KINEMATICS, Rotation2d.fromDegrees(gyro.getYaw()), getSwerveModulePositions()); 
 
   private double pitchOffset = 0.0;
   public SwerveDrive() {
@@ -83,7 +84,12 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
     SmartDashboard.putNumber("angle", gyro.getAngle()); 
     SmartDashboard.putNumber("pitch", getPitch());
     SmartDashboard.putNumber("distance x",odometry.getPoseMeters().getX()); 
-    SmartDashboard.putNumber("distance y",odometry.getPoseMeters().getY()); 
+    SmartDashboard.putNumber("distance y",odometry.getPoseMeters().getY());  
+
+    SmartDashboard.putNumber("SwerveModuleAngle/frontLeft", frontLeft.getAngle()); 
+    SmartDashboard.putNumber("SwerveModuleAngle/frontRight", frontRight.getAngle()); 
+    SmartDashboard.putNumber("SwerveModuleAngle/backLeft", backLeft.getAngle()); 
+    SmartDashboard.putNumber("SwerveModuleAngle/backRight", backRight.getAngle()); 
   }
 
   public void drive(double xPercent, double yPercent, double rotationPercent){ 
@@ -114,10 +120,10 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   }
 
   public void updateOdometry(){ 
-    odometry.update( Rotation2d.fromDegrees(-getGyroAngle()), getSwerveModulePositions());
-    // SmartDashboard.putNumber("SwerveDrive/Pose/X", Units.metersToInches(odometry.getPoseMeters().getX()));
-    // SmartDashboard.putNumber("SwerveDrive/Pose/Y", Units.metersToInches(odometry.getPoseMeters().getY()));
-    // SmartDashboard.putNumber("SwerveDrive/Pose/Z", odometry.getPoseMeters().getRotation().getDegrees());
+    odometry.update( Rotation2d.fromDegrees(gyro.getYaw()), getSwerveModulePositions());
+    SmartDashboard.putNumber("SwerveDrive/Pose/X", Units.metersToFeet(odometry.getPoseMeters().getX()));
+    SmartDashboard.putNumber("SwerveDrive/Pose/Y", Units.metersToFeet(odometry.getPoseMeters().getY()));
+    SmartDashboard.putNumber("SwerveDrive/Pose/Z", odometry.getPoseMeters().getRotation().getDegrees());
   }
 
   public boolean fieldOriented(){ 
