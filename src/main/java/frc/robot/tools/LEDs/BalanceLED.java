@@ -8,6 +8,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.tools.MathTools;
 
 /** Add your docs here. */
 public class BalanceLED extends AddressableLEDHelper {
@@ -17,7 +18,6 @@ public class BalanceLED extends AddressableLEDHelper {
     private final static double PITCH_MAX =  17.0;
     private final static double PITCH_MIN = -17.0;
 
-    // numLEDs has to be a multiple of 3
     public BalanceLED(int numLEDs, DoubleSupplier pitch) {
         super(numLEDs);
         this.numLEDs = numLEDs;
@@ -33,14 +33,22 @@ public class BalanceLED extends AddressableLEDHelper {
     public AddressableLEDBuffer writeData(AddressableLEDBuffer buffer) {
         double pitchValue = pitch.getAsDouble();
 
-        int led = (int) map( pitchValue, PITCH_MIN, PITCH_MAX, (double)offset, (double)(offset+numLEDs)) ;
+        int led = (int) MathTools.map( pitchValue, PITCH_MIN, PITCH_MAX, (double)offset, (double)(offset+numLEDs)) ;
+
+        int bubble = numLEDs / 2 - 2;
+        buffer.setLED(bubble, Color.kYellow);
+        buffer.setLED(bubble+1, Color.kYellow);
+        buffer.setLED(bubble+2, Color.kYellow);
+        buffer.setLED(bubble+3, Color.kYellow);
+        buffer.setLED(bubble+4, Color.kYellow);
 
         buffer.setLED(led, Color.kGreen);
+        if (led > 0)
+            buffer.setLED(led-1, Color.kGreen);
+        if (led < numLEDs-1)
+            buffer.setLED(led+1, Color.kGreen);
 
         return buffer;
     }
 
-    public static double map(double x, double inMin, double inMax, double outMin, double outMax) {
-        return (x - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
-    }
 }
