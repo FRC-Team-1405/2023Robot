@@ -48,6 +48,8 @@ public class Robot extends TimedRobot {
 
 
     badlog.finishInitialization();
+    m_robotContainer.configureLEDs();
+
   }
 
   /**
