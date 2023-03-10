@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
 import frc.robot.commands.BackUp;
+import frc.robot.commands.LEDManager;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
@@ -15,6 +16,10 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.tools.SwerveType;
+import frc.robot.tools.LEDs.BalanceLED;
+import frc.robot.tools.LEDs.BatteryLED;
+import frc.robot.tools.LEDs.IAddressableLEDHelper;
+import frc.robot.tools.LEDs.MultiFunctionLED;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -60,6 +65,21 @@ public class RobotContainer {
     intake.onDisable();
   }
 
+  private IAddressableLEDHelper[] leds;
+  private MultiFunctionLED multifucntion ;
+  private LEDManager ledManager;
+
+  public void configureLEDs(){
+    //ledManager can run during disabled
+    multifucntion = new MultiFunctionLED( 
+                        new BatteryLED(Constants.BatteryMonitor.LEDCOUNT), 
+                        new BalanceLED(Constants.BatteryMonitor.LEDCOUNT, () -> { return driveBase.getPitch(); }) );
+    leds = new IAddressableLEDHelper[] {multifucntion};
+    
+
+    ledManager = new LEDManager(Constants.PWMPort.LEDPORT, leds);
+    ledManager.schedule();
+  }
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
