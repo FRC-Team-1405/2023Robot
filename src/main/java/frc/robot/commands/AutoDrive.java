@@ -46,7 +46,7 @@ public class AutoDrive extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    drivenDistance += swerve.getDistance();
-    return drivenDistance >= targetDistance;
-  }
+    drivenDistance += Math.sqrt(Math.pow(swerve.getPose().getX(), 2.0)+ 
+    Math.pow(swerve.getPose().getY(), 2.0));
+    return drivenDistance >= targetDistance;  }
 }
