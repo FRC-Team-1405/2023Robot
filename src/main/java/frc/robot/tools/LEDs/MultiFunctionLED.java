@@ -10,17 +10,21 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 public class MultiFunctionLED implements IAddressableLEDHelper{
 
     private AddressableLEDHelper[] ledHelpers;
-    private int mode = 0;
+    private static int mode = 0;
+    private static int MAX_MODE = 0;
     public MultiFunctionLED(AddressableLEDHelper... ledHelpers) {
         this.ledHelpers = ledHelpers;
+        MultiFunctionLED.MAX_MODE = ledHelpers.length;
     }
     
     public int getLedCount() {
         return ledHelpers[mode].getLedCount();
     }
 
-    public void setMode(int mode) {
-        this.mode = mode;
+    public static void setMode(int mode) {
+        if (mode >= 0 && mode < MultiFunctionLED.MAX_MODE) {
+            MultiFunctionLED.mode = mode;
+        }
     }
     // Sets the offset to apply to buffer set calls
     public void initialize(int offset) {
