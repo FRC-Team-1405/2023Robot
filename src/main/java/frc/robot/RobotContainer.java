@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
 import frc.robot.commands.BackUp;
+import frc.robot.commands.LEDManager;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
@@ -15,10 +16,15 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.tools.SwerveType;
+import frc.robot.tools.LEDs.BalanceLED;
+import frc.robot.tools.LEDs.BatteryLED;
+import frc.robot.tools.LEDs.IAddressableLEDHelper;
+import frc.robot.tools.LEDs.MultiFunctionLED;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -60,6 +66,21 @@ public class RobotContainer {
     intake.onDisable();
   }
 
+  private IAddressableLEDHelper[] leds;
+  private MultiFunctionLED multifucntion ;
+  private LEDManager ledManager;
+
+  public void configureLEDs(){
+    //ledManager can run during disabled
+    multifucntion = new MultiFunctionLED( 
+                        new BatteryLED(Constants.BatteryMonitor.LEDCOUNT), 
+                        new BalanceLED(Constants.BatteryMonitor.LEDCOUNT, () -> { return driveBase.getPitch(); }) );
+    leds = new IAddressableLEDHelper[] {multifucntion};
+    
+
+    ledManager = new LEDManager(Constants.PWMPort.LEDPORT, leds);
+    ledManager.schedule();
+  }
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -75,7 +96,14 @@ public class RobotContainer {
     operator.b().onTrue(scoreCommand.setMiddlePosition);
     operator.a().onTrue(scoreCommand.setLowPostition);
     operator.x().onTrue(scoreCommand.setCustomPosition);
-    operator.back().onTrue(new InstantCommand( driveBase::resetGyro ));
+
+    operator.back().onTrue( new InstantCommand( driveBase::resetGyro ) {
+      public boolean runsWhenDisabled() {
+        return true;
+      }    
+    });
+
+
     operator.leftBumper().whileTrue( Commands.run(() -> { arm.adjustElbowPosition( (int)(operator.getLeftY() * 1250));}, arm) );
     operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
     
@@ -91,31 +119,33 @@ public class RobotContainer {
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
                       
     driver.rightBumper()
-      .onTrue(Commands.parallel(
-        Commands.run( ()-> {
-          intake.intakeDeploy();
-          intake.intakeSuck();
-          intake.conveyerBeltForward();
-          intake.twisterForward();},
-          intake),
-        Commands.sequence(
-          new InstantCommand(arm::openClaw),
-          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-          new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
-        )
-      ))
-      .onFalse(Commands.parallel(
-        Commands.run( ()-> {
-          intake.intakeRetract();
-          intake.intakeOff();
-          intake.conveyerBeltOff();
-          intake.twisterOff();},
-          intake),
-        Commands.sequence(
-          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-          new InstantCommand(arm::closedClaw)
-        )
-      ));
+      .onTrue( new ConditionalCommand(
+                  Commands.parallel(
+                    Commands.run( ()-> {
+                      intake.intakeRetract();
+                      intake.intakeOff();
+                      intake.conveyerBeltOff();
+                      intake.twisterOff();},
+                      intake),
+                    Commands.sequence(
+                      new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+                      new InstantCommand(arm::closedClaw)
+                    )),
+                    Commands.parallel(
+                      Commands.run( ()-> {
+                        intake.intakeDeploy();
+                        intake.intakeSuck();
+                        intake.conveyerBeltForward();
+                        intake.twisterForward();},
+                        intake),
+                      Commands.sequence(
+                        new InstantCommand(arm::openClaw),
+                        new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+                        new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+                      )
+                    ),
+                    intake::intakeIsDeployed)
+      );
 
     driver.leftBumper().onTrue( 
       new SequentialCommandGroup(
@@ -126,12 +156,6 @@ public class RobotContainer {
     );
     driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
                                              () -> { driveBase.parkingBrake(false);}));
-
-    operator.back().onTrue( new InstantCommand( driveBase::resetGyro ) {
-      public boolean runsWhenDisabled() {
-        return true;
-      }    
-    });
 
   }
   

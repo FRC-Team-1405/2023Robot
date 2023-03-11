@@ -18,6 +18,7 @@ public class Intake extends SubsystemBase {
   private WPI_TalonSRX upper = new WPI_TalonSRX(Constants.DeviceID.Intake);
   private WPI_TalonSRX conveyerBelt = new WPI_TalonSRX(Constants.DeviceID.ConveyerBelt);
   private WPI_TalonSRX twister = new WPI_TalonSRX(Constants.DeviceID.Twister); 
+  private boolean intakeIsDeployed = false;
 
   private FusionTimeofFlight gamePieceSensor = new FusionTimeofFlight(17); 
 
@@ -32,6 +33,7 @@ public class Intake extends SubsystemBase {
                                                     Constants.PnuematicID.IntakeRetract);
 
   public Intake() {}
+
   public void intakeSuck(){
     upper.set(Constants.Intake.UpperSpeed);
   }
@@ -43,10 +45,16 @@ public class Intake extends SubsystemBase {
   }
   public void intakeDeploy(){
     intake.set(Value.kForward);
+    intakeIsDeployed = true;
   }
   public void intakeRetract(){
     intake.set(Value.kReverse);
+    intakeIsDeployed = false;
   }
+  public boolean intakeIsDeployed() {
+    return intakeIsDeployed;
+  }
+
   public void conveyerBeltForward(){
     conveyerBelt.set(Constants.Intake.ConveyerBeltSpeed);
   }
