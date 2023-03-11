@@ -25,7 +25,7 @@ public class MagicMotionHelper {
     public MagicMotionHelper(BaseMotorController motor, int settle){
         SlotConfiguration slot = new SlotConfiguration();
         motor.getSlotConfigs(slot, 0, settle);
-        this.threshold = slot.allowableClosedloopError * 2;
+        this.threshold = slot.allowableClosedloopError * 4;
 
         this.motor=motor;
         this.settleThreshold=settle;
