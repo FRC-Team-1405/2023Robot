@@ -15,4 +15,8 @@ public class MathTools {
         double value = (x - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
         return Math.max(outMin, Math.min(outMax, value));
     }
+
+    public static  int clamp(int value, int min, int max){
+        return Math.max(min, Math.min(max, value));
+    }
 }    
