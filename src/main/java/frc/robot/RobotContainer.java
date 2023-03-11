@@ -20,6 +20,7 @@ import frc.robot.tools.MathTools;
 import frc.robot.tools.SwerveType;
 import frc.robot.tools.LEDs.BalanceLED;
 import frc.robot.tools.LEDs.BatteryLED;
+import frc.robot.tools.LEDs.BounceDisplay;
 import frc.robot.tools.LEDs.IAddressableLEDHelper;
 import frc.robot.tools.LEDs.MultiFunctionLED;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -74,9 +75,11 @@ public class RobotContainer {
 
   public void configureLEDs(){
     //ledManager can run during disabled
-    multifucntion = new MultiFunctionLED( 
+    multifucntion = new MultiFunctionLED(
                         new BatteryLED(Constants.BatteryMonitor.LEDCOUNT), 
-                        new BalanceLED(Constants.BatteryMonitor.LEDCOUNT, () -> { return driveBase.getPitch(); }) );
+                        new BalanceLED(Constants.BatteryMonitor.LEDCOUNT, () -> { return driveBase.getPitch(); }),
+                        new BounceDisplay(Constants.BatteryMonitor.LEDCOUNT)
+                        );
     leds = new IAddressableLEDHelper[] {multifucntion};
     
 
