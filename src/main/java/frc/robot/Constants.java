@@ -98,12 +98,12 @@ public final class Constants {
   }
 
   public static class PnuematicID {
-    public static final int ClawOpen = 2;
-    public static final int ClawClosed = 5;
+    public static final int ClawOpen = 4;
+    public static final int ClawClosed = 0;
     public static final int IntakeDeploy = 6;
     public static final int IntakeRetract = 1;
-    public static final int ArmBrakeClose = 3;
-    public static final int ArmBrakeOpen = 4;
+   // public static final int ArmBrakeClose = 3;
+    //public static final int ArmBrakeOpen = 4;
   }
 
   public static class Arm {
