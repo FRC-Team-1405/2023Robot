@@ -24,13 +24,17 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once ;per scheduler run 
+    // This method will be called once per scheduler run 
     gamePieceSensor.measure();
   }
 
   private DoubleSolenoid intake = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 
                                                     Constants.PnuematicID.IntakeDeploy, 
                                                     Constants.PnuematicID.IntakeRetract);
+
+  private DoubleSolenoid gate = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,
+                                                   Constants.PnuematicID.GateRaise,
+                                                   Constants.PnuematicID.GateLower);       
 
   public Intake() {}
 
@@ -50,6 +54,12 @@ public class Intake extends SubsystemBase {
   public void intakeRetract(){
     intake.set(Value.kReverse);
     intakeIsDeployed = false;
+  }
+  public void gateRaise(){
+    gate.set(Value.kForward);
+  }
+  public void gateLower(){
+    gate.set(Value.kReverse);
   }
   public boolean intakeIsDeployed() {
     return intakeIsDeployed;

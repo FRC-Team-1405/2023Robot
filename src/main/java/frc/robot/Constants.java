@@ -104,6 +104,8 @@ public final class Constants {
     public static final int IntakeRetract = 1;
    // public static final int ArmBrakeClose = 3;
     //public static final int ArmBrakeOpen = 4;
+    public static final int GateRaise = 2;
+    public static final int GateLower = 3;
   }
 
   public static class Arm {

@@ -17,15 +17,15 @@ D-Pad Up-
 D-Pad Down-
 
 OPERATOR
-right stick- While Pressed Claw Up and Down 
-left stick-While Pressed Claw Extension 
+right stick-  
+left stick- 
 A button-Low Scoring Selection
 B button-Middle Scoring Selection
 Y button-High Scoring Selection
 X button-Custom Scoring Selection
-Right Bumper-
-Left Bumper-
-Right Trigger- 
+Right Bumper-While Pressed Claw Up and Down
+Left Bumper-While Pressed Claw Extension
+Right Trigger- Raise and Lower Gate
 Left Trigger- 
 Back button-Reset NavX
 Start Button-
