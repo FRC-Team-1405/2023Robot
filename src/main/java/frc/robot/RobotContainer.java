@@ -186,6 +186,11 @@ public class RobotContainer {
     SmartDashboard.putData("Intake/Retract", intake.run( intake::intakeRetract ));
     SmartDashboard.putData("Claw/Open", arm.run( arm::openClaw ));
     SmartDashboard.putData("Claw/Close", arm.run( arm::closedClaw ));
+    SmartDashboard.putData("ConveyerBelt/Forward", intake.run( intake::conveyerBeltForward));
+    SmartDashboard.putData("ConveyerBelt/Off", intake.run( intake::conveyerBeltOff));
+    SmartDashboard.putData("Intake/On", intake.run( intake::intakeSuck));
+    SmartDashboard.putData("Intake/Off", intake.run( intake::intakeOff));
+
 
   }
 
