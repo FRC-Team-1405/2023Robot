@@ -35,8 +35,6 @@ public class Arm extends SubsystemBase {
     Grab,
   }
 
-  private boolean elbowAtPosition = false;
-
   private DoubleSolenoid claw = new DoubleSolenoid( PneumaticsModuleType.CTREPCM, 
                                                     Constants.PnuematicID.ClawOpen, 
                                                     Constants.PnuematicID.ClawClosed);
@@ -61,7 +59,6 @@ public class Arm extends SubsystemBase {
   }
 
   public void setElbowPosition(Position position){
-    elbowAtPosition = false;
      switch (position){
       case Home: 
         elbow.setPosition(Constants.Arm.ElbowPosition.ElbowHome);
@@ -108,7 +105,7 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean atElbowPosition(){
-    return elbowAtPosition;
+    return elbow.atPosition();
   }
 
   public boolean atExtensionPosition(){

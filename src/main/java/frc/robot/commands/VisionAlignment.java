@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.sensors.Limelight;
 import frc.robot.sensors.Limelight.LED;
+import frc.robot.subsystems.SwerveDrive;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class VisionAlignment extends CommandBase {
@@ -50,7 +51,7 @@ public class VisionAlignment extends CommandBase {
     private ProfiledPIDController zController;  
     private DoubleSupplier forwardSpeed; 
 
-    public VisionAlignment(DoubleSupplier forwardSpeed, double angle, SwerveSubsystem swerve) {
+    public VisionAlignment(DoubleSupplier forwardSpeed, double angle, SwerveDrive swerve) {
         addRequirements(swerve);
         configPIDs(swerve);
         xController.setSetpoint(0);
@@ -67,18 +68,21 @@ public class VisionAlignment extends CommandBase {
 
         limelight.setPipeline(visionPipeline);
         limelight.setLED(visionPipeline == Constants.Limelight.Pipeline_Score ? LED.On : LED.Off);
-        limelight.setCameraMode(true);
+        limelight.setCameraMode(false);
     }
 
     public void execute() {
         if (limelight.hasTarget()) {
             double angle = limelight.getTX();
             double theta = swerve.getPose().getRotation().getRadians();
-            double speed = xController.calculate(-angle);
+            double yspeed = xController.calculate(-angle);
             double zSpeed = zController.calculate(theta);
             SmartDashboard.putNumber("Error", xController.getPositionError());
-            SmartDashboard.putNumber("Speed", speed);
-            setPosition(speed, zSpeed);
+            SmartDashboard.putNumber("Speed", yspeed);
+            setPosition(yspeed, zSpeed);
+        }
+        else {
+            setPosition(0,0);
         }
     }
 
@@ -90,11 +94,11 @@ public class VisionAlignment extends CommandBase {
         setPosition(0.0, 0.0); 
         limelight.setPipeline(Constants.Limelight.Pipeline_Drive);
         limelight.setLED(LED.Off);
-        limelight.setCameraMode(false);
+        limelight.setCameraMode(true);
     }
 
     private void setPosition(double speed, double zSpeed) {
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(forwardSpeed.getAsDouble(), speed, zSpeed);
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(forwardSpeed.getAsDouble(), -speed, 0.0);
         SwerveModuleState[] moduleStates = swerve.getKinematics().toSwerveModuleStates(chassisSpeeds);
         swerve.setModuleStates(moduleStates);
     }

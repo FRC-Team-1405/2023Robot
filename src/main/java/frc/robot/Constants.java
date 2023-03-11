@@ -102,8 +102,6 @@ public final class Constants {
     public static final int ClawClosed = 0;
     public static final int IntakeDeploy = 6;
     public static final int IntakeRetract = 1;
-   // public static final int ArmBrakeClose = 3;
-    //public static final int ArmBrakeOpen = 4;
     public static final int GateRaise = 2;
     public static final int GateLower = 3;
   }
@@ -111,18 +109,18 @@ public final class Constants {
   public static class Arm {
     public static class ElbowPosition {
       public static final int ElbowGrab = -0;
-      public static final int ElbowHome = -0;
-      public static final int ElbowLow = -25000;
-      public static final int ElbowMedium = -70000;
-      public static final int ElbowHigh = -100000;
+      public static final int ElbowHome = -5000;
+      public static final int ElbowLow = -35000;
+      public static final int ElbowMedium = -92000;
+      public static final int ElbowHigh = -120000;
     }
 
     public static class ExtensionPosition {
       public static final int ExtensionGrab = -6000;
       public static final int ExtensionHome = -5000;
       public static final int ExtensionLow = -40000;
-      public static final int ExtensionMedium = -120000;
-      public static final int ExtensionHigh = -200000;
+      public static final int ExtensionMedium = -5000;
+      public static final int ExtensionHigh = -226000;
     }
   }
 

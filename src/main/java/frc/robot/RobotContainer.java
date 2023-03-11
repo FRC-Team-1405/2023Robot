@@ -53,7 +53,6 @@ public class RobotContainer {
   private final Arm arm = new Arm();
   private final PowerDistribution powerDistribution = new PowerDistribution();
   private final Intake intake = new Intake();
-  private final Intake gate = new Intake();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driver = new CommandXboxController(OperatorConstants.DriverControllerPort);
@@ -127,8 +126,8 @@ public class RobotContainer {
 
     operator.leftBumper().whileTrue( Commands.run(() -> { arm.adjustElbowPosition( (int)(operator.getLeftY() * 1250));}, arm) );
     operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
-    operator.rightTrigger().onTrue(Commands.run(() -> {gate.gateLower();}, intake));
-    operator.rightTrigger().onFalse(Commands.run(() -> {gate.gateRaise();}, intake));
+    operator.rightTrigger().onTrue(Commands.run(() -> {intake.gateLower();}, intake));
+    operator.rightTrigger().onFalse(Commands.run(() -> {intake.gateRaise();}, intake));
 
     
     Limelight limelight = new Limelight();
@@ -212,8 +211,8 @@ public class RobotContainer {
     SmartDashboard.putData("ConveyerBelt/Off", intake.run( intake::conveyerBeltOff));
     SmartDashboard.putData("Intake/On", intake.run( intake::intakeSuck));
     SmartDashboard.putData("Intake/Off", intake.run( intake::intakeOff));
-    SmartDashboard.putData("Gate/Raise", intake.run( gate::gateRaise ));
-    SmartDashboard.putData("Gate/Lower", intake.run( gate::gateLower));
+    SmartDashboard.putData("Gate/Raise", intake.run( intake::gateRaise ));
+    SmartDashboard.putData("Gate/Lower", intake.run( intake::gateLower));
 
   }
 

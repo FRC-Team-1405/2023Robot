@@ -9,13 +9,12 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.Position;
 
 /** Add your docs here. */
-public class ScoreCommand extends ParallelCommandGroup{
+public class ScoreCommand extends SequentialCommandGroup{
 
 
     public CommandBase setHighPostition = new InstantCommand( () -> {position = Arm.Position.High;} );
@@ -36,7 +35,8 @@ public class ScoreCommand extends ParallelCommandGroup{
         setCustomPosition = new InstantCommand( () -> {position = Arm.Position.Custom;});
 
 
-        addCommands( new ArmAngle(this.arm, () -> { return position;} ),
+        addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
+                     new ArmAngle(this.arm, () -> { return position;} ),
                      new ArmExtension(this.arm, () -> { return position;} ) );    
     }
 
