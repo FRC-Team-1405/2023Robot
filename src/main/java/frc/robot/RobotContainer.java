@@ -90,6 +90,9 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  private enum InputType { Cube, Cone };
+  private InputType inputType = InputType.Cone;
+
   private void configureBindings() {
     ScoreCommand scoreCommand = new ScoreCommand(arm);
     operator.y().onTrue(scoreCommand.setHighPostition);
@@ -102,13 +105,16 @@ public class RobotContainer {
         return true;
       }    
     });
+    operator.start().onTrue( Commands.runOnce( () -> { System.out.println("Emergency Cancel"); }, arm, driveBase, intake));
 
 
     operator.leftBumper().whileTrue( Commands.run(() -> { arm.adjustElbowPosition( (int)(operator.getLeftY() * 1250));}, arm) );
     operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
     
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
-    driver.x().onTrue(new BackUp(driveBase));
+    driver.x().onTrue( Commands.run(() -> { inputType = InputType.Cube;}));
+    driver.y().onTrue( Commands.run(() -> { inputType = InputType.Cone;}));
+
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
     driver.b().whileTrue( new SequentialCommandGroup( 
                               new AutoBalance.Balance(driveBase, this::getYSpeed),
@@ -121,7 +127,7 @@ public class RobotContainer {
     driver.rightBumper()
       .onTrue( new ConditionalCommand(
                   Commands.parallel(
-                    Commands.run( ()-> {
+                    Commands.runOnce( ()-> {
                       intake.intakeRetract();
                       intake.intakeOff();
                       intake.conveyerBeltOff();
@@ -132,10 +138,10 @@ public class RobotContainer {
                       new InstantCommand(arm::closedClaw)
                     )),
                     Commands.parallel(
-                      Commands.run( ()-> {
+                      Commands.runOnce( ()-> {
                         intake.intakeDeploy();
                         intake.intakeSuck();
-                        intake.conveyerBeltForward();
+                        if (inputType == InputType.Cone) { intake.conveyerBeltForward(); }
                         intake.twisterForward();},
                         intake),
                       Commands.sequence(
