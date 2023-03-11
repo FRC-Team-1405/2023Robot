@@ -7,6 +7,7 @@ package frc.robot.tools.LEDs;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.tools.MathTools;
 import frc.robot.Constants;
 
 public class BatteryLED extends AddressableLEDHelper {
@@ -42,33 +43,29 @@ public class BatteryLED extends AddressableLEDHelper {
 
         voltage = voltage < Constants.BatteryMonitor.MINVOLTAGE ? Constants.BatteryMonitor.MINVOLTAGE : voltage;
 
-        int numberOfLeds = (int) map(voltage, Constants.BatteryMonitor.MINVOLTAGE,
+        int numberOfLeds = (numLEDs - 1) - (int)MathTools.map(voltage, Constants.BatteryMonitor.MINVOLTAGE,
                 Constants.BatteryMonitor.MAXVOLTAGE, 1, numLEDs);
 
         for (int i = offset; i < segmentLength + offset; i++) {
             // Green
             buffer.setLED(i + greenOffset,
-            (i + greenOffset < numberOfLeds
+            (i + greenOffset > numberOfLeds
                     ? super.setPercentBrightness(Color.kGreen, Constants.BatteryMonitor.BRIGHTNESS)
                     : super.setPercentBrightness(Color.kBlack, Constants.BatteryMonitor.BRIGHTNESS)));
 
             // Yellow
             buffer.setLED(i + yellowOffset,
-                    (i + yellowOffset < numberOfLeds
+                    (i + yellowOffset > numberOfLeds
                             ? super.setPercentBrightness(Color.kYellow, Constants.BatteryMonitor.BRIGHTNESS)
                             : super.setPercentBrightness(Color.kBlack, Constants.BatteryMonitor.BRIGHTNESS)));
         
             // Red
             buffer.setLED(i + redOffset,
-            (i + redOffset < numberOfLeds
+            (i + redOffset > numberOfLeds
                     ? super.setPercentBrightness(Color.kRed, Constants.BatteryMonitor.BRIGHTNESS)
                     : super.setPercentBrightness(Color.kBlack, Constants.BatteryMonitor.BRIGHTNESS)));
         }
        
         return buffer;
-    }
-
-    public static double map(double x, double inMin, double inMax, double outMin, double outMax) {
-        return (x - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;
     }
 }
