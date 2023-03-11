@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -89,18 +90,31 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  private enum InputType { Cube, Cone };
+  private InputType inputType = InputType.Cone;
+
   private void configureBindings() {
     ScoreCommand scoreCommand = new ScoreCommand(arm);
     operator.y().onTrue(scoreCommand.setHighPostition);
     operator.b().onTrue(scoreCommand.setMiddlePosition);
     operator.a().onTrue(scoreCommand.setLowPostition);
     operator.x().onTrue(scoreCommand.setCustomPosition);
-    operator.back().onTrue(new InstantCommand( driveBase::resetGyro ));
+
+    operator.back().onTrue( new InstantCommand( driveBase::resetGyro ) {
+      public boolean runsWhenDisabled() {
+        return true;
+      }    
+    });
+    operator.start().onTrue( Commands.runOnce( () -> { System.out.println("Emergency Cancel"); }, arm, driveBase, intake));
+
+
     operator.leftBumper().whileTrue( Commands.run(() -> { arm.adjustElbowPosition( (int)(operator.getLeftY() * 1250));}, arm) );
     operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
     
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
-    driver.x().onTrue(new BackUp(driveBase));
+    driver.x().onTrue( Commands.run(() -> { inputType = InputType.Cube;}));
+    driver.y().onTrue( Commands.run(() -> { inputType = InputType.Cone;}));
+
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
     driver.b().whileTrue( new SequentialCommandGroup( 
                               new AutoBalance.Balance(driveBase, this::getYSpeed),
@@ -111,31 +125,33 @@ public class RobotContainer {
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
                       
     driver.rightBumper()
-      .onTrue(Commands.parallel(
-        Commands.run( ()-> {
-          intake.intakeDeploy();
-          intake.intakeSuck();
-          intake.conveyerBeltForward();
-          intake.twisterForward();},
-          intake),
-        Commands.sequence(
-          new InstantCommand(arm::openClaw),
-          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-          new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
-        )
-      ))
-      .onFalse(Commands.parallel(
-        Commands.run( ()-> {
-          intake.intakeRetract();
-          intake.intakeOff();
-          intake.conveyerBeltOff();
-          intake.twisterOff();},
-          intake),
-        Commands.sequence(
-          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-          new InstantCommand(arm::closedClaw)
-        )
-      ));
+      .onTrue( new ConditionalCommand(
+                  Commands.parallel(
+                    Commands.runOnce( ()-> {
+                      intake.intakeRetract();
+                      intake.intakeOff();
+                      intake.conveyerBeltOff();
+                      intake.twisterOff();},
+                      intake),
+                    Commands.sequence(
+                      new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+                      new InstantCommand(arm::closedClaw)
+                    )),
+                    Commands.parallel(
+                      Commands.runOnce( ()-> {
+                        intake.intakeDeploy();
+                        intake.intakeSuck();
+                        if (inputType == InputType.Cone) { intake.conveyerBeltForward(); }
+                        intake.twisterForward();},
+                        intake),
+                      Commands.sequence(
+                        new InstantCommand(arm::openClaw),
+                        new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+                        new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+                      )
+                    ),
+                    intake::intakeIsDeployed)
+      );
 
     driver.leftBumper().onTrue( 
       new SequentialCommandGroup(
@@ -146,12 +162,6 @@ public class RobotContainer {
     );
     driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
                                              () -> { driveBase.parkingBrake(false);}));
-
-    operator.back().onTrue( new InstantCommand( driveBase::resetGyro ) {
-      public boolean runsWhenDisabled() {
-        return true;
-      }    
-    });
 
   }
   
@@ -171,6 +181,11 @@ public class RobotContainer {
     SmartDashboard.putData("Intake/Retract", intake.run( intake::intakeRetract ));
     SmartDashboard.putData("Claw/Open", arm.run( arm::openClaw ));
     SmartDashboard.putData("Claw/Close", arm.run( arm::closedClaw ));
+    SmartDashboard.putData("ConveyerBelt/Forward", intake.run( intake::conveyerBeltForward));
+    SmartDashboard.putData("ConveyerBelt/Off", intake.run( intake::conveyerBeltOff));
+    SmartDashboard.putData("Intake/On", intake.run( intake::intakeSuck));
+    SmartDashboard.putData("Intake/Off", intake.run( intake::intakeOff));
+
 
   }
 
