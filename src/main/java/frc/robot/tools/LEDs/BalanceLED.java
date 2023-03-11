@@ -38,11 +38,12 @@ public class BalanceLED extends AddressableLEDHelper {
             buffer.setLED(i, Color.kBlack);
         }
         int bubble = numLEDs / 2 - 2;
-        buffer.setLED(bubble, Color.kYellow);
-        buffer.setLED(bubble+1, Color.kYellow);
-        buffer.setLED(bubble+2, Color.kYellow);
-        buffer.setLED(bubble+3, Color.kYellow);
-        buffer.setLED(bubble+4, Color.kYellow);
+        Color persentageYellow = super.setPercentBrightness(Color.kYellow, 0.2);
+        buffer.setLED(bubble,   persentageYellow);
+        buffer.setLED(bubble+1, persentageYellow);
+        buffer.setLED(bubble+2, persentageYellow);
+        buffer.setLED(bubble+3, persentageYellow);
+        buffer.setLED(bubble+4, persentageYellow);
 
         buffer.setLED(led, Color.kGreen);
         if (led > 0)
