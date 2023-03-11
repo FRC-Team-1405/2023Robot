@@ -33,8 +33,10 @@ public class BalanceLED extends AddressableLEDHelper {
     public AddressableLEDBuffer writeData(AddressableLEDBuffer buffer) {
         double pitchValue = pitch.getAsDouble();
 
-        int led = (int) MathTools.map( pitchValue, PITCH_MIN, PITCH_MAX, (double)offset, (double)(offset+numLEDs)) ;
-
+        int led = (int) MathTools.map( pitchValue, PITCH_MIN, PITCH_MAX, (double)offset, (double)(offset+numLEDs-1)) ;
+        for(int i = offset; i < offset + numLEDs; i++){
+            buffer.setLED(i, Color.kBlack);
+        }
         int bubble = numLEDs / 2 - 2;
         buffer.setLED(bubble, Color.kYellow);
         buffer.setLED(bubble+1, Color.kYellow);
