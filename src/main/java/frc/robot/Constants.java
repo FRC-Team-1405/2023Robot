@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
+import frc.robot.sensors.Limelight;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -138,5 +139,15 @@ public final class Constants {
     public static final double LowerSpeed;
     public static final double ConveyerBeltSpeed;
     public static final double Twister;
+  }
+
+  public static class Limelight {
+    public static byte Pipeline_Score = 0;
+    public static byte Pipeline_Cone = 1;
+    public static byte Pipeline_Cube = 2;
+    public static byte Pipeline_Drive = 3;
+
+    public static byte Pipeline_MIN = 0;
+    public static byte Pipeline_MAX = 2;
   }
 }

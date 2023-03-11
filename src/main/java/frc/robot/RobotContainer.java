@@ -12,9 +12,11 @@ import frc.robot.commands.LEDManager;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
+import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.tools.MathTools;
 import frc.robot.tools.SwerveType;
 import frc.robot.tools.LEDs.BalanceLED;
 import frc.robot.tools.LEDs.BatteryLED;
@@ -111,6 +113,15 @@ public class RobotContainer {
     operator.leftBumper().whileTrue( Commands.run(() -> { arm.adjustElbowPosition( (int)(operator.getLeftY() * 1250));}, arm) );
     operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
     
+    Limelight limelight = new Limelight();
+    operator.povDown().whileTrue(Commands.runOnce(() ->{
+      byte pipeline = (byte) MathTools.clamp(VisionAlignment.getVisionPipelien() -1, Constants.Limelight.Pipeline_MIN, Constants.Limelight.Pipeline_MAX);
+      VisionAlignment.setVisionPipeline(pipeline);
+    }));
+    operator.povUp().whileTrue(Commands.runOnce(() -> {
+      byte pipeline = (byte) MathTools.clamp(VisionAlignment.getVisionPipelien() +1, Constants.Limelight.Pipeline_MIN, Constants.Limelight.Pipeline_MAX);
+      VisionAlignment.setVisionPipeline(pipeline);
+    }));
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
     driver.x().onTrue( Commands.run(() -> { inputType = InputType.Cube;}));
     driver.y().onTrue( Commands.run(() -> { inputType = InputType.Cone;}));
@@ -185,7 +196,6 @@ public class RobotContainer {
     SmartDashboard.putData("ConveyerBelt/Off", intake.run( intake::conveyerBeltOff));
     SmartDashboard.putData("Intake/On", intake.run( intake::intakeSuck));
     SmartDashboard.putData("Intake/Off", intake.run( intake::intakeOff));
-
 
   }
 

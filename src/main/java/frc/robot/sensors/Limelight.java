@@ -134,10 +134,8 @@
            AN ERROR OCCURED 
                Including FIRST's docs.
                REEEEEEEEEEEEEEEEEEEEEE */
-          public double getPipeline() {
-          /* This would have been a byte but, eh
-             I don't feel like casting */
-          return (getpipe.getDouble(0));
+          public byte getPipeline() {
+          return (byte)(getpipe.getDouble(0));
           }
           public boolean hasTarget() {
           return (tv.getDouble(0.0) == 1);

@@ -13,8 +13,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.sensors.Limelight;
 import frc.robot.sensors.Limelight.LED;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -28,6 +30,18 @@ public class VisionAlignment extends CommandBase {
     private static double z_I = 0.0 ;
     private static double z_D = 0.0 ;
     public Limelight limelight = new Limelight();
+    
+    private static byte visionPipeline = Constants.Limelight.Pipeline_Score;
+    public static void setVisionPipeline(byte pipeline) {
+        visionPipeline = pipeline;
+        SmartDashboard.putBoolean("VisionAlignment/TargetIsScore", visionPipeline == Constants.Limelight.Pipeline_Score);
+        SmartDashboard.putBoolean("VisionAlignment/TargetIsCone", visionPipeline == Constants.Limelight.Pipeline_Cone);
+        SmartDashboard.putBoolean("VisionAlignment/TargetIsCube", visionPipeline == Constants.Limelight.Pipeline_Cube);
+    }
+    public static byte getVisionPipelien(){
+        return visionPipeline;
+    }
+    
     static{
        // loadConfigs();
     } 
@@ -44,15 +58,16 @@ public class VisionAlignment extends CommandBase {
         this.forwardSpeed = forwardSpeed; 
         this.swerve = swerve; 
         zController.enableContinuousInput(-Math.PI, Math.PI); 
-         
+        setVisionPipeline(visionPipeline);
     }
     
     public void initialize() { 
         xController.reset(); 
         zController.reset(swerve.getPose().getRotation().getRadians());
-       
-        limelight.setPipeline((byte) 0);
-        limelight.setLED(LED.On);
+
+        limelight.setPipeline(visionPipeline);
+        limelight.setLED(visionPipeline == Constants.Limelight.Pipeline_Score ? LED.On : LED.Off);
+        limelight.setCameraMode(true);
     }
 
     public void execute() { 
@@ -72,8 +87,9 @@ public class VisionAlignment extends CommandBase {
 
     public void end(boolean interrupted) {
         setPosition(0.0, 0.0); 
-        limelight.setPipeline((byte) 1);
+        limelight.setPipeline(Constants.Limelight.Pipeline_Drive);
         limelight.setLED(LED.Off);
+        limelight.setCameraMode(false);
     }
 
     private void setPosition(double speed, double zSpeed) {
