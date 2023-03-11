@@ -76,11 +76,12 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     m_robotContainer.disabledInit();
+    MultiFunctionLED.setMode(2); 
+    limelight.setLED(LED.Off);
   }
 
   @Override
   public void disabledPeriodic() {
-    limelight.setLED(LED.Off);
   }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
