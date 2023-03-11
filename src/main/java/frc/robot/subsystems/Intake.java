@@ -18,12 +18,13 @@ public class Intake extends SubsystemBase {
   private WPI_TalonSRX upper = new WPI_TalonSRX(Constants.DeviceID.Intake);
   private WPI_TalonSRX conveyerBelt = new WPI_TalonSRX(Constants.DeviceID.ConveyerBelt);
   private WPI_TalonSRX twister = new WPI_TalonSRX(Constants.DeviceID.Twister); 
+  private boolean intakeIsDeployed = false;
 
   private FusionTimeofFlight gamePieceSensor = new FusionTimeofFlight(17); 
 
   @Override
   public void periodic() {
-    // This method will be called once ;per scheduler run 
+    // This method will be called once per scheduler run 
     gamePieceSensor.measure();
   }
 
@@ -31,7 +32,12 @@ public class Intake extends SubsystemBase {
                                                     Constants.PnuematicID.IntakeDeploy, 
                                                     Constants.PnuematicID.IntakeRetract);
 
+  private DoubleSolenoid gate = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,
+                                                   Constants.PnuematicID.GateRaise,
+                                                   Constants.PnuematicID.GateLower);       
+
   public Intake() {}
+
   public void intakeSuck(){
     upper.set(Constants.Intake.UpperSpeed);
   }
@@ -43,10 +49,22 @@ public class Intake extends SubsystemBase {
   }
   public void intakeDeploy(){
     intake.set(Value.kForward);
+    intakeIsDeployed = true;
   }
   public void intakeRetract(){
     intake.set(Value.kReverse);
+    intakeIsDeployed = false;
   }
+  public void gateRaise(){
+    gate.set(Value.kForward);
+  }
+  public void gateLower(){
+    gate.set(Value.kReverse);
+  }
+  public boolean intakeIsDeployed() {
+    return intakeIsDeployed;
+  }
+
   public void conveyerBeltForward(){
     conveyerBelt.set(Constants.Intake.ConveyerBeltSpeed);
   }

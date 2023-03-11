@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.tools.LEDs.MultiFunctionLED;
 
 /** Add your docs here. */
 public class AutoBalance {
@@ -58,6 +59,8 @@ public class AutoBalance {
         // Called when the command is initially scheduled.
         @Override
         public void initialize() {
+            MultiFunctionLED.setMode(1); // Balance Display
+            
             double angle = Math.IEEEremainder(swerveDrive.getGyroAngle(), 360.0) ;
             double pitch = swerveDrive.getPitch();
             

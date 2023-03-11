@@ -8,18 +8,27 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
 import frc.robot.commands.AutoDrive;
+import frc.robot.commands.LEDManager;
 import frc.robot.commands.ScoreCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
+import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.tools.MathTools;
 import frc.robot.tools.SwerveType;
 import edu.wpi.first.math.util.Units;
+import frc.robot.tools.LEDs.BalanceLED;
+import frc.robot.tools.LEDs.BatteryLED;
+import frc.robot.tools.LEDs.BounceDisplay;
+import frc.robot.tools.LEDs.IAddressableLEDHelper;
+import frc.robot.tools.LEDs.MultiFunctionLED;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -61,6 +70,23 @@ public class RobotContainer {
     intake.onDisable();
   }
 
+  private IAddressableLEDHelper[] leds;
+  private MultiFunctionLED multifucntion ;
+  private LEDManager ledManager;
+
+  public void configureLEDs(){
+    //ledManager can run during disabled
+    multifucntion = new MultiFunctionLED(
+                        new BatteryLED(Constants.BatteryMonitor.LEDCOUNT), 
+                        new BalanceLED(Constants.BatteryMonitor.LEDCOUNT, () -> { return driveBase.getPitch(); }),
+                        new BounceDisplay(Constants.BatteryMonitor.LEDCOUNT)
+                        );
+    leds = new IAddressableLEDHelper[] {multifucntion};
+    
+
+    ledManager = new LEDManager(Constants.PWMPort.LEDPORT, leds);
+    ledManager.schedule();
+  }
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
@@ -70,18 +96,43 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  private enum InputType { Cube, Cone };
+  private InputType inputType = InputType.Cone;
+
   private void configureBindings() {
     ScoreCommand scoreCommand = new ScoreCommand(arm);
     operator.y().onTrue(scoreCommand.setHighPostition);
     operator.b().onTrue(scoreCommand.setMiddlePosition);
     operator.a().onTrue(scoreCommand.setLowPostition);
     operator.x().onTrue(scoreCommand.setCustomPosition);
-    operator.back().onTrue(new InstantCommand( driveBase::resetGyro ));
+
+    operator.back().onTrue( new InstantCommand( driveBase::resetGyro ) {
+      public boolean runsWhenDisabled() {
+        return true;
+      }    
+    });
+    operator.start().onTrue( Commands.runOnce( () -> { System.out.println("Emergency Cancel"); }, arm, driveBase, intake));
+
+
     operator.leftBumper().whileTrue( Commands.run(() -> { arm.adjustElbowPosition( (int)(operator.getLeftY() * 1250));}, arm) );
     operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
+    operator.rightTrigger().onTrue(Commands.run(() -> {intake.gateLower();}, intake));
+    operator.rightTrigger().onFalse(Commands.run(() -> {intake.gateRaise();}, intake));
+
     
+    Limelight limelight = new Limelight();
+    operator.povDown().whileTrue(Commands.runOnce(() ->{
+      byte pipeline = (byte) MathTools.clamp(VisionAlignment.getVisionPipelien() -1, Constants.Limelight.Pipeline_MIN, Constants.Limelight.Pipeline_MAX);
+      VisionAlignment.setVisionPipeline(pipeline);
+    }));
+    operator.povUp().whileTrue(Commands.runOnce(() -> {
+      byte pipeline = (byte) MathTools.clamp(VisionAlignment.getVisionPipelien() +1, Constants.Limelight.Pipeline_MIN, Constants.Limelight.Pipeline_MAX);
+      VisionAlignment.setVisionPipeline(pipeline);
+    }));
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
-    driver.x().onTrue(new AutoDrive(driveBase, 0.1, 0.0, Units.inchesToMeters(6.0)));
+    driver.x().onTrue( Commands.run(() -> { inputType = InputType.Cube;}));
+    driver.y().onTrue( Commands.run(() -> { inputType = InputType.Cone;}));
+
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
     driver.b().whileTrue( new SequentialCommandGroup( 
                               new AutoBalance.Balance(driveBase, this::getYSpeed),
@@ -92,31 +143,33 @@ public class RobotContainer {
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
                       
     driver.rightBumper()
-      .onTrue(Commands.parallel(
-        Commands.run( ()-> {
-          intake.intakeDeploy();
-          intake.intakeSuck();
-          intake.conveyerBeltForward();
-          intake.twisterForward();},
-          intake),
-        Commands.sequence(
-          new InstantCommand(arm::openClaw),
-          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-          new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
-        )
-      ))
-      .onFalse(Commands.parallel(
-        Commands.run( ()-> {
-          intake.intakeRetract();
-          intake.intakeOff();
-          intake.conveyerBeltOff();
-          intake.twisterOff();},
-          intake),
-        Commands.sequence(
-          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-          new InstantCommand(arm::closedClaw)
-        )
-      ));
+      .onTrue( new ConditionalCommand(
+                  Commands.parallel(
+                    Commands.runOnce( ()-> {
+                      intake.intakeRetract();
+                      intake.intakeOff();
+                      intake.conveyerBeltOff();
+                      intake.twisterOff();},
+                      intake),
+                    Commands.sequence(
+                      new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+                      new InstantCommand(arm::closedClaw)
+                    )),
+                    Commands.parallel(
+                      Commands.runOnce( ()-> {
+                        intake.intakeDeploy();
+                        intake.intakeSuck();
+                        if (inputType == InputType.Cone) { intake.conveyerBeltForward(); }
+                        intake.twisterForward();},
+                        intake),
+                      Commands.sequence(
+                        new InstantCommand(arm::openClaw),
+                        new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+                        new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+                      )
+                    ),
+                    intake::intakeIsDeployed)
+      );
 
     driver.leftBumper().onTrue( 
       new SequentialCommandGroup(
@@ -127,12 +180,6 @@ public class RobotContainer {
     );
     driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
                                              () -> { driveBase.parkingBrake(false);}));
-
-    operator.back().onTrue( new InstantCommand( driveBase::resetGyro ) {
-      public boolean runsWhenDisabled() {
-        return true;
-      }    
-    });
 
   }
   
@@ -152,6 +199,12 @@ public class RobotContainer {
     SmartDashboard.putData("Intake/Retract", intake.run( intake::intakeRetract ));
     SmartDashboard.putData("Claw/Open", arm.run( arm::openClaw ));
     SmartDashboard.putData("Claw/Close", arm.run( arm::closedClaw ));
+    SmartDashboard.putData("ConveyerBelt/Forward", intake.run( intake::conveyerBeltForward));
+    SmartDashboard.putData("ConveyerBelt/Off", intake.run( intake::conveyerBeltOff));
+    SmartDashboard.putData("Intake/On", intake.run( intake::intakeSuck));
+    SmartDashboard.putData("Intake/Off", intake.run( intake::intakeOff));
+    SmartDashboard.putData("Gate/Raise", intake.run( intake::gateRaise ));
+    SmartDashboard.putData("Gate/Lower", intake.run( intake::gateLower));
 
   }
 
