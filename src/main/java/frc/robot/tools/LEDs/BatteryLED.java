@@ -4,6 +4,7 @@
 
 package frc.robot.tools.LEDs;
 
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.util.Color;
@@ -36,12 +37,11 @@ public class BatteryLED extends AddressableLEDHelper {
         this.offset = offset;
     }
 
+    MedianFilter filter = new MedianFilter(5);
     @Override
     public AddressableLEDBuffer writeData(AddressableLEDBuffer buffer) {
-        double voltage = RobotController.getBatteryVoltage();
+        double voltage = filter.calculate(RobotController.getBatteryVoltage());
         // double voltage = SmartDashboard.getNumber("LedVoltageTest", 0);
-
-        voltage = voltage < Constants.BatteryMonitor.MINVOLTAGE ? Constants.BatteryMonitor.MINVOLTAGE : voltage;
 
         int numberOfLeds = (numLEDs - 1) - (int)MathTools.map(voltage, Constants.BatteryMonitor.MINVOLTAGE,
                 Constants.BatteryMonitor.MAXVOLTAGE, 1, numLEDs);
