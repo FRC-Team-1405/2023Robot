@@ -4,11 +4,12 @@
 
 package frc.robot.commands;
 
-import frc.robot.Constants.Intake;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.SwerveDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -68,40 +69,49 @@ public final class Autos {
 
   public static CommandBase getSelectedAuto(SwerveDrive swerve, Arm arm, Intake intake){
     Position pos = position.getSelected();
-    CommandBase autoCommand = Commands.print("Auto Command");
+    SequentialCommandGroup autoCommand = new SequentialCommandGroup();
 
+    Command cmd_1;
     switch (step_1.getSelected()){
-      case Score_High:    autoCommand.andThen( scoreHigh(arm) ) ;    
+      case Score_High:    cmd_1 = scoreHigh(arm) ;    
                           break;
-      case Score_Middle:  autoCommand.andThen( scoreMiddle() ) ;  
+      case Score_Middle:  cmd_1 = scoreMiddle() ;  
                           break;
-      case Score_Low:     autoCommand.andThen( scoreLow() ) ;     
+      case Score_Low:     cmd_1 = scoreLow(intake)  ;     
                           break;
-      default:            autoCommand.andThen( Commands.print("Skipping Step 1") ) ; 
+      default:            cmd_1 = Commands.print("Skipping Step 1") ; 
                           break;
       }
 
+      Command cmd_2;
       switch (step_2.getSelected()){
-        case Drive_Over_Ramp: autoCommand.andThen( DriveOverRamp(swerve, false) ) ;    
-                              break;
-        case Balance_Backwards: autoCommand.andThen( BalanceAuto(swerve, false) ) ;  
-                              break;
-        case Leave_Community: autoCommand.andThen(leaveCommunity(swerve, false));
-                              break;
-        default:              autoCommand.andThen( Commands.print("Skipping Step 2") ) ; 
-                              break;
+        case Drive_Over_Ramp:   cmd_2 = DriveOverRamp(swerve, false) ;    
+                                break;
+        case Balance_Backwards: cmd_2 = BalanceAuto(swerve, false)  ;  
+                                break;
+        case Leave_Community:   cmd_2 = leaveCommunity(swerve, false);
+                                break;
+        default:                cmd_2 = Commands.print("Skipping Step 2") ; 
+                                break;
       }
 
+      Command cmd_3;
       switch (step_3.getSelected()){
-        case Balance_Backwards: autoCommand.andThen( BalanceAuto(swerve, false) );
+        case Balance_Backwards: cmd_3 = BalanceAuto(swerve, false) ;
                                 break;
-        case Balance_Forward: autoCommand.andThen(BalanceAuto(swerve, true));
+        case Balance_Forward:   cmd_3 = BalanceAuto(swerve, true);
                                 break;                        
-        default:                autoCommand.andThen( Commands.print("Skipping Step 3") );
+        default:                cmd_3 = Commands.print("Skipping Step 3") ;
                                 break;
       }
   
-      autoCommand.andThen( Commands.print("Auto command stopped"));
+      autoCommand.addCommands( Commands.print("Auto command starting"),
+                               Commands.runOnce(swerve::resetGyro),
+                               Commands.waitSeconds(1),
+                               cmd_1,
+                               cmd_2,
+                               cmd_3,
+                               Commands.print("Auto command finished") );
  
       return autoCommand;
   }
@@ -128,8 +138,8 @@ public final class Autos {
     return Commands.sequence(new RunCommand(()-> swerve.drive((forward ? 0.2 : -0.2), 0, 0), swerve).withTimeout(1));
   }
 
-  private static CommandBase scoreLow(){
-    return Commands.print("Score in low goal");
+  private static CommandBase scoreLow(Intake intake){
+    return intake.runEnd( intake::conveyerBeltEject, intake::conveyerBeltOff ).withTimeout(1);
   }
 
   private static CommandBase scoreMiddle(){

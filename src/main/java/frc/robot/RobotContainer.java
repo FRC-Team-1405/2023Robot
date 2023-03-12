@@ -98,10 +98,16 @@ public class RobotContainer {
    */
   private enum InputType { Cube, Cone };
   private InputType inputType = InputType.Cone;
-  public void setInputType(InputType type) {
+  private void setInputType(InputType type) {
     inputType = type;
     SmartDashboard.putBoolean("IntakeType/Cone", inputType == InputType.Cone);
     SmartDashboard.putBoolean("IntakeType/Cube", inputType == InputType.Cube);
+  }
+  private void toggleInputType() {
+    if (inputType == InputType.Cone)
+      setInputType(InputType.Cube);
+    else
+      setInputType(InputType.Cone);
   }
 
   private void configureBindings() {
@@ -119,15 +125,24 @@ public class RobotContainer {
     operator.start().onTrue( Commands.runOnce( () -> { System.out.println("Emergency Cancel"); }, arm, driveBase, intake));
 
 
-    operator.leftBumper().whileTrue( Commands.run(() -> { arm.adjustElbowPosition( (int)(operator.getLeftY() * 1250));}, arm) );
-    operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
-    operator.rightTrigger().onTrue(Commands.run(() -> {intake.gateLower();}, intake));
-    operator.rightTrigger().onFalse(Commands.run(() -> {intake.gateRaise();}, intake));
+    operator.leftTrigger(0.5).whileTrue(
+      arm.run( ()->{ arm.adjustElbowPosition( (int) operator.getLeftY() * 1250 ); } )
+    );
+
+    operator.rightTrigger(0.5).whileTrue(
+      arm.run( ()->{ arm.adjustExtensionPosition( (int) operator.getRightY() * 1250 ); } )
+    );
+    operator.rightTrigger().onTrue(Commands.run(() -> {intake.gateLower();}, intake))
+                           .onFalse(Commands.run(() -> {intake.gateRaise();}, intake));
+    operator.leftBumper().onTrue( intake.runOnce( intake::conveyerBeltEject) )
+                         .onFalse( intake.runOnce( intake::conveyerBeltOff ) );
+
     operator.povUp().onTrue( 
         new SequentialCommandGroup( 
           new InstantCommand(() -> { arm.openClaw();}),
-          new ScoreCommand(arm, Arm.Position.FeederStation)
-          ))
+            new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.FeederStation);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+            new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.FeederStation);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+        ))
         .onFalse( new InstantCommand(() -> { arm.closedClaw();}) );
     operator.povDown().onTrue( 
       new SequentialCommandGroup(
@@ -136,32 +151,23 @@ public class RobotContainer {
         )
     );
 
-
-    
-    Limelight limelight = new Limelight();
-    operator.povDown().whileTrue(Commands.runOnce(() ->{
-      byte pipeline = (byte) MathTools.clamp(VisionAlignment.getVisionPipelien() -1, Constants.Limelight.Pipeline_MIN, Constants.Limelight.Pipeline_MAX);
-      VisionAlignment.setVisionPipeline(pipeline);
-    }));
-    operator.povUp().whileTrue(Commands.runOnce(() -> {
-      byte pipeline = (byte) MathTools.clamp(VisionAlignment.getVisionPipelien() +1, Constants.Limelight.Pipeline_MIN, Constants.Limelight.Pipeline_MAX);
-      VisionAlignment.setVisionPipeline(pipeline);
-    }));
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
 
     setInputType(inputType);
-    driver.x().onTrue( new InstantCommand(() -> { setInputType(InputType.Cube);}));
-    driver.y().onTrue( new InstantCommand(() -> { setInputType(InputType.Cone);}));
-
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
     driver.b().whileTrue( new SequentialCommandGroup( 
                               new AutoBalance.Balance(driveBase, this::getYSpeed),
                               new AutoBalance.DropTrigger(driveBase, this::getYSpeed),
                               new AutoBalance.BalanceTrigger(driveBase, this::getYSpeed) ).repeatedly()
                           );
+    driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
+                                             () -> { driveBase.parkingBrake(false);}));
+    driver.y().onTrue( new InstantCommand(() -> { toggleInputType(); }));
+
     driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); }));
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
-                      
+      
+    
     driver.rightBumper()
       .onTrue(
         Commands.parallel(
@@ -191,15 +197,14 @@ public class RobotContainer {
 
     driver.leftBumper().onTrue( 
       new SequentialCommandGroup(
-//          new AutoDrive(driveBase, 0.1, 0.0, Units.inchesToMeters(6)),
+          // new ConditionalCommand( new AutoDrive(driveBase, 0.4, 0.0, Units.inchesToMeters(4.0)),
+          //                         Commands.none(),
+          //                         () -> { return scoreCommand.getTarget() == Arm.Position.Middle; }),
           new InstantCommand(arm::openClaw),
           new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
           new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
         )
     );
-    driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
-                                             () -> { driveBase.parkingBrake(false);}));
-
   }
   
   private void ConfigShuffleboard(){
@@ -225,6 +230,8 @@ public class RobotContainer {
     SmartDashboard.putData("Gate/Raise", intake.run( intake::gateRaise ));
     SmartDashboard.putData("Gate/Lower", intake.run( intake::gateLower));
 
+
+    SmartDashboard.putData("Testing/DriveBack", new AutoDrive(driveBase, 0.2, 0, Units.inchesToMeters(6.0)));
   }
 
   /**
@@ -234,11 +241,17 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-  return Autos.BalanceAuto(driveBase, false);
+    return Autos.getSelectedAuto(driveBase, arm, intake);
   }
   double getXSpeed(){ 
+    int pov = driver.getHID().getPOV();
     double finalX;
-    if (Math.abs(driver.getLeftY()) <= 0.1)
+
+    if ( pov == 0 )
+      finalX = -0.05;
+    else if(pov == 180)
+      finalX = 0.05;
+    else if (Math.abs(driver.getLeftY()) <= 0.1)
       finalX = 0.0;
     else
       finalX = driver.getLeftY() * 0.75 * (1.0 + driver.getLeftTriggerAxis());

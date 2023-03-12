@@ -48,8 +48,10 @@ public class AutoDrive extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    Transform2d delta = startPos.minus(swerve.getPose());
-    double drivenDistance = Math.sqrt(Math.pow(delta.getX(), 2.0)+Math.pow(delta.getY(), 2.0));
+    Pose2d currentPos = swerve.getPose();
+    double deltaX = startPos.getX() - currentPos.getX();
+    double deltaY = startPos.getY() - currentPos.getY();
+    double drivenDistance = Math.sqrt( Math.pow(deltaX, 2.0) + Math.pow(deltaY, 2.0) );
     System.out.printf("Backup %f %f\n", targetDistance, drivenDistance);
     return drivenDistance >= targetDistance;  }
 }

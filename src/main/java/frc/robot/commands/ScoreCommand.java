@@ -26,6 +26,9 @@ public class ScoreCommand extends SequentialCommandGroup{
 
     private Arm arm;
     protected Arm.Position position = Position.Home;
+    public Arm.Position getTarget() {
+        return position;
+    }
 
     public ScoreCommand(Arm arm){
         this.arm = arm;
