@@ -7,6 +7,7 @@ package frc.robot.commands;
 import java.security.cert.Extension;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -17,11 +18,18 @@ import frc.robot.subsystems.Arm.Position;
 public class ScoreCommand extends SequentialCommandGroup{
 
 
-    public CommandBase setHighPostition = new InstantCommand( () -> {position = Arm.Position.High;} );
-    public CommandBase setMiddlePosition = new InstantCommand( () -> {position = Arm.Position.Middle;});
-    public CommandBase setLowPostition = new InstantCommand( () -> {position = Arm.Position.Low;} );
-    public CommandBase setCustomPosition = new InstantCommand( () -> {position = Arm.Position.Custom;});
+    public CommandBase setHighPostition = new InstantCommand( () -> { setTarget(Arm.Position.High);} );
+    public CommandBase setMiddlePosition = new InstantCommand( () -> { setTarget(Arm.Position.Middle);});
+    public CommandBase setLowPostition = new InstantCommand( () -> { setTarget(Arm.Position.Low);} );
+    public CommandBase setCustomPosition = new InstantCommand( () -> { setTarget(Arm.Position.Custom);});
 
+    private void setTarget(Arm.Position position) {
+        this.position = position;
+        SmartDashboard.putBoolean("Score/Position/High", position == Arm.Position.High);
+        SmartDashboard.putBoolean("Score/Position/Middle", position == Arm.Position.Middle);
+        SmartDashboard.putBoolean("Score/Position/Low", position == Arm.Position.Low);
+        SmartDashboard.putBoolean("Score/Position/Custom", position == Arm.Position.Custom);
+    }
 
 
     private Arm arm;
@@ -43,7 +51,8 @@ public class ScoreCommand extends SequentialCommandGroup{
         this.arm = arm;
         addRequirements(arm);
 
-        this.position = position;
+        
+        setTarget(position);
 
         addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
                      new ArmAngle(this.arm, () -> { return this.position;} ),
