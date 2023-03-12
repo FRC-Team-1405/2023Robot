@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -13,7 +15,7 @@ public class AutoDrive extends CommandBase {
   private SwerveDrive swerve;
   private double xSpeed;
   private double ySpeed;
-  private double drivenDistance;
+  private Pose2d startPos;
   private double targetDistance;
 
   /** Creates a new BackUp. */
@@ -29,7 +31,7 @@ public class AutoDrive extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    drivenDistance = 0.0;
+    startPos = swerve.getPose();
     swerve.driveSpeed(xSpeed, ySpeed, 0.0, false);
   }
 
@@ -46,7 +48,8 @@ public class AutoDrive extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    drivenDistance += Math.sqrt(Math.pow(swerve.getPose().getX(), 2.0)+ 
-    Math.pow(swerve.getPose().getY(), 2.0));
+    Transform2d delta = startPos.minus(swerve.getPose());
+    double drivenDistance = Math.sqrt(Math.pow(delta.getX(), 2.0)+Math.pow(delta.getY(), 2.0));
+    System.out.printf("Backup %f %f\n", targetDistance, drivenDistance);
     return drivenDistance >= targetDistance;  }
 }
