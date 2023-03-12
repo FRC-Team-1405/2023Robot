@@ -173,33 +173,31 @@ public class RobotContainer {
     driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
                       
     driver.rightBumper()
-      .onTrue( new ConditionalCommand(
-                  Commands.parallel(
-                    Commands.runOnce( ()-> {
-                      intake.intakeRetract();
-                      intake.intakeOff();
-                      intake.conveyerBeltOff();
-                      intake.twisterOff();},
-                      intake),
-                    Commands.sequence(
-                      new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-                      new InstantCommand(arm::closedClaw)
-                    )),
-                    Commands.parallel(
-                      Commands.runOnce( ()-> {
-                        intake.intakeDeploy();
-                        intake.intakeSuck();
-                        if (inputType == InputType.Cone) { intake.conveyerBeltForward(); }
-                        intake.twisterForward();},
-                        intake),
-                      Commands.sequence(
-                        new InstantCommand(arm::openClaw),
-                        new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-                        new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
-                      )
-                    ),
-                    intake::intakeIsDeployed)
-      );
+      .onTrue(
+        Commands.parallel(
+          Commands.runOnce( ()-> {
+            intake.intakeDeploy();
+            intake.intakeSuck();
+            if (inputType == InputType.Cone) { intake.conveyerBeltForward(); }
+            intake.twisterForward();},
+            intake),
+          Commands.sequence(
+            new InstantCommand(arm::openClaw),
+            new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+            new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+      )))
+      .onFalse(
+        Commands.parallel(
+          Commands.runOnce( ()-> {
+            intake.intakeRetract();
+            intake.intakeOff();
+            intake.conveyerBeltOff();
+            intake.twisterOff();},
+            intake),
+          Commands.sequence(
+            new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+            new InstantCommand(arm::closedClaw)
+      )));
 
     driver.leftBumper().onTrue( 
       new SequentialCommandGroup(
