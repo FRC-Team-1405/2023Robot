@@ -98,6 +98,11 @@ public class RobotContainer {
    */
   private enum InputType { Cube, Cone };
   private InputType inputType = InputType.Cone;
+  public void setInputType(InputType type) {
+    inputType = type;
+    SmartDashboard.putBoolean("IntakeType/Cone", inputType == InputType.Cone);
+    SmartDashboard.putBoolean("IntakeType/Cube", inputType == InputType.Cube);
+  }
 
   private void configureBindings() {
     ScoreCommand scoreCommand = new ScoreCommand(arm);
@@ -143,8 +148,10 @@ public class RobotContainer {
       VisionAlignment.setVisionPipeline(pipeline);
     }));
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
-    driver.x().onTrue( Commands.run(() -> { inputType = InputType.Cube;}));
-    driver.y().onTrue( Commands.run(() -> { inputType = InputType.Cone;}));
+
+    setInputType(inputType);
+    driver.x().onTrue( new InstantCommand(() -> { setInputType(InputType.Cube);}));
+    driver.y().onTrue( new InstantCommand(() -> { setInputType(InputType.Cone);}));
 
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
     driver.b().whileTrue( new SequentialCommandGroup( 

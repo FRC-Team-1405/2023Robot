@@ -112,8 +112,8 @@ public final class Constants {
       public static final int ElbowHome = -5000;
       public static final int ElbowLow = -35000;
       public static final int ElbowMedium = -92000;
-      public static final int ElbowHigh = -135000;
-      public static final int ElbowFeederStation = -12000;
+      public static final int ElbowHigh = -115000;
+      public static final int ElbowFeederStation = -100000;
     }
 
     public static class ExtensionPosition {
