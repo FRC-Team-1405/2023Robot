@@ -71,6 +71,9 @@ public class Intake extends SubsystemBase {
   public void conveyerBeltBackward(){
     conveyerBelt.set(-Constants.Intake.ConveyerBeltSpeed);
   }
+  public void conveyerBeltEject(){
+    conveyerBelt.set(1.0); // max speed for ejecting
+  }
   public void conveyerBeltOff(){
     conveyerBelt.set(0.0);
   }

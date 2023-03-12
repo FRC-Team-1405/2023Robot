@@ -47,10 +47,10 @@ public class AutoBalance {
                  new DoubleSupplier() {
                     private double speed = 0.16;
                     public double getAsDouble(){
-                    if (speed <= 0.06) {
-                        return speed;
+                    if (speed <= 0.6) {
+                        return 0.06;
                     }
-                    speed -= 0.02;
+                    speed -= 0.05;
                     return speed;
                     }
                 });

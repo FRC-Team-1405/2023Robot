@@ -13,6 +13,7 @@ import badlog.lib.BadLog;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.VisionAlignment;
 import frc.robot.sensors.Limelight;
 import frc.robot.sensors.Limelight.LED;
 import frc.robot.tools.LEDs.MultiFunctionLED;
@@ -77,7 +78,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {
     m_robotContainer.disabledInit();
     MultiFunctionLED.setMode(2); 
-    limelight.setLED(LED.Off);
+    limelight.setPipeline(Constants.Limelight.Pipeline_Drive);
   }
 
   @Override

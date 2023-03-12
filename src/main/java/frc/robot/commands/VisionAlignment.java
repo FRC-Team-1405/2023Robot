@@ -67,8 +67,8 @@ public class VisionAlignment extends CommandBase {
         zController.reset(swerve.getPose().getRotation().getRadians());
 
         limelight.setPipeline(visionPipeline);
-        limelight.setLED(visionPipeline == Constants.Limelight.Pipeline_Score ? LED.On : LED.Off);
-        limelight.setCameraMode(false);
+//        limelight.setLED(visionPipeline == Constants.Limelight.Pipeline_Score ? LED.On : LED.Off);
+//        limelight.setCameraMode(false);
     }
 
     public void execute() {
@@ -93,8 +93,8 @@ public class VisionAlignment extends CommandBase {
     public void end(boolean interrupted) {
         setPosition(0.0, 0.0); 
         limelight.setPipeline(Constants.Limelight.Pipeline_Drive);
-        limelight.setLED(LED.Off);
-        limelight.setCameraMode(true);
+ //       limelight.setLED(LED.Off);
+ //       limelight.setCameraMode(true);
     }
 
     private void setPosition(double speed, double zSpeed) {
