@@ -31,5 +31,5 @@ Back button-Reset NavX
 Start Button-
 D-Pad Left- 
 D-Pad Right- 
-D-Pad Up-
-D-Pad Down-
+D-Pad Up-Claw up
+D-Pad Down-Claw Down 

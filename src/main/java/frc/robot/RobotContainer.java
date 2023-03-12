@@ -118,6 +118,19 @@ public class RobotContainer {
     operator.rightBumper().whileTrue(Commands.run(() -> { arm.adjustExtensionPosition((int)(operator.getRightY() * 1250));}, arm));
     operator.rightTrigger().onTrue(Commands.run(() -> {intake.gateLower();}, intake));
     operator.rightTrigger().onFalse(Commands.run(() -> {intake.gateRaise();}, intake));
+    operator.povUp().onTrue( 
+        new SequentialCommandGroup( 
+          new InstantCommand(() -> { arm.openClaw();}),
+          new ScoreCommand(arm, Arm.Position.FeederStation)
+          ))
+        .onFalse( new InstantCommand(() -> { arm.closedClaw();}) );
+    operator.povDown().onTrue( 
+      new SequentialCommandGroup(
+          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+          new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+        )
+    );
+
 
     
     Limelight limelight = new Limelight();
@@ -173,6 +186,7 @@ public class RobotContainer {
 
     driver.leftBumper().onTrue( 
       new SequentialCommandGroup(
+//          new AutoDrive(driveBase, 0.1, 0.0, Units.inchesToMeters(6)),
           new InstantCommand(arm::openClaw),
           new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
           new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)

@@ -22,6 +22,8 @@ public class ScoreCommand extends SequentialCommandGroup{
     public CommandBase setLowPostition = new InstantCommand( () -> {position = Arm.Position.Low;} );
     public CommandBase setCustomPosition = new InstantCommand( () -> {position = Arm.Position.Custom;});
 
+
+
     private Arm arm;
     protected Arm.Position position = Position.Home;
 
@@ -29,15 +31,20 @@ public class ScoreCommand extends SequentialCommandGroup{
         this.arm = arm;
         addRequirements(arm);
 
-        setHighPostition = new InstantCommand( () -> {position = Arm.Position.High;} );
-        setMiddlePosition = new InstantCommand( () -> {position = Arm.Position.Middle;});
-        setLowPostition = new InstantCommand( () -> {position = Arm.Position.Low;} );
-        setCustomPosition = new InstantCommand( () -> {position = Arm.Position.Custom;});
+        addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
+                     new ArmAngle(this.arm, () -> { return this.position;} ),
+                     new ArmExtension(this.arm, () -> { return this.position;} ) );    
+    }
+    
+    public ScoreCommand(Arm arm, Arm.Position position){ 
+        this.arm = arm;
+        addRequirements(arm);
 
+        this.position = position;
 
         addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
-                     new ArmAngle(this.arm, () -> { return position;} ),
-                     new ArmExtension(this.arm, () -> { return position;} ) );    
+                     new ArmAngle(this.arm, () -> { return this.position;} ),
+                     new ArmExtension(this.arm, () -> { return this.position;} ) );    
     }
 
     private static class ArmAngle extends CommandBase{
@@ -70,6 +77,7 @@ public class ScoreCommand extends SequentialCommandGroup{
             
         @Override
         public void initialize() {
+
             arm.setExtensionPosition(position.get());
         }
     

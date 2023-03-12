@@ -33,6 +33,7 @@ public class Arm extends SubsystemBase {
     High,
     Custom,
     Grab,
+    FeederStation,
   }
 
   private DoubleSolenoid claw = new DoubleSolenoid( PneumaticsModuleType.CTREPCM, 
@@ -75,6 +76,8 @@ public class Arm extends SubsystemBase {
       case Custom:
         elbow.setPosition(customArmAngle);
       break;
+      case FeederStation: 
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowFeederStation);
     }
   }
   private double customArmExtension = Constants.Arm.ExtensionPosition.ExtensionHome;
@@ -101,6 +104,8 @@ public class Arm extends SubsystemBase {
       case Custom:
         extension.setPosition(customArmExtension);
         break;
+      case FeederStation:
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionFeederPosition);
     }
   }
 
