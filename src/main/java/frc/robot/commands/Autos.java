@@ -4,12 +4,17 @@
 
 package frc.robot.commands;
 
+import frc.robot.Constants.Intake;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.SwerveDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 
 public final class Autos {
@@ -61,12 +66,12 @@ public final class Autos {
     SmartDashboard.putData("Auto/Step 3", step_3);
   }
 
-  public static CommandBase getSelectedAuto(SwerveDrive swerve){
+  public static CommandBase getSelectedAuto(SwerveDrive swerve, Arm arm, Intake intake){
     Position pos = position.getSelected();
     CommandBase autoCommand = Commands.print("Auto Command");
 
     switch (step_1.getSelected()){
-      case Score_High:    autoCommand.andThen( scoreHigh() ) ;    
+      case Score_High:    autoCommand.andThen( scoreHigh(arm) ) ;    
                           break;
       case Score_Middle:  autoCommand.andThen( scoreMiddle() ) ;  
                           break;
@@ -131,8 +136,13 @@ public final class Autos {
     return Commands.print("score in middle goal");
   }
   
-  private static CommandBase scoreHigh(){
-    return Commands.print("score in high goal");
+  private static CommandBase scoreHigh(Arm arm){
+    return new SequentialCommandGroup(
+      new ScoreCommand(arm, Arm.Position.High),
+      new InstantCommand(()->{arm.openClaw();}, arm),
+      new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+      new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+    );
   }
 
   public static CommandBase AutoFieldDrive(SwerveDrive swerve, double x, double y, double z){
