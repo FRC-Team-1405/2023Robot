@@ -17,15 +17,16 @@ public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   private WPI_TalonSRX upper = new WPI_TalonSRX(Constants.DeviceID.Intake);
   private WPI_TalonSRX conveyerBelt = new WPI_TalonSRX(Constants.DeviceID.ConveyerBelt);
+  //requiescant in pace, Twister
   private WPI_TalonSRX twister = new WPI_TalonSRX(Constants.DeviceID.Twister); 
   private boolean intakeIsDeployed = false;
 
-  private FusionTimeofFlight gamePieceSensor = new FusionTimeofFlight(17); 
+  //private FusionTimeofFlight gamePieceSensor = new FusionTimeofFlight(17); 
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run 
-    gamePieceSensor.measure();
+    //gamePieceSensor.measure();
   }
 
   private DoubleSolenoid intake = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 

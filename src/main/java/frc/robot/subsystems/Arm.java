@@ -13,7 +13,8 @@ import frc.robot.Constants;
 import frc.robot.tools.MagicMotionHelper;
 
 public class Arm extends SubsystemBase {
-  /** Creates a new Arm. */
+  /** Creates a new Arm. */ 
+  public boolean isZeroized = false; 
   public Arm() {
   }
 
@@ -29,11 +30,14 @@ public class Arm extends SubsystemBase {
   public enum Position {
     Home,
     Low,
-    Middle,
-    High,
+    ConeMiddle,
+    ConeHigh, 
+    CubeMiddle, 
+    CubeHigh,
     Custom,
     Grab,
-    FeederStation,
+    FeederStation, 
+    FeederStationStore
   }
 
   private DoubleSolenoid claw = new DoubleSolenoid( PneumaticsModuleType.CTREPCM, 
@@ -67,17 +71,26 @@ public class Arm extends SubsystemBase {
       case Low: 
         elbow.setPosition(Constants.Arm.ElbowPosition.ElbowLow);
         break;
-      case Middle:
-        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowMedium);
+      case ConeMiddle:
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowConeMedium);
         break;
-      case High:
-        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowHigh);
+      case ConeHigh:
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowConeHigh);
         break;
       case Custom:
         elbow.setPosition(customArmAngle);
-      break;
+        break; 
+      case CubeMiddle: 
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowCubeMedium); 
+        break; 
+      case CubeHigh: 
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowCubeHigh);
       case FeederStation: 
-        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowFeederStation);
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowFeederStation); 
+        break;
+      case FeederStationStore: 
+        elbow.setPosition(Constants.Arm.ElbowPosition.ElbowFeederStationStorage);
+        break; 
     }
   }
   private double customArmExtension = Constants.Arm.ExtensionPosition.ExtensionHome;
@@ -95,16 +108,23 @@ public class Arm extends SubsystemBase {
       case Low: 
         extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionLow);
         break;
-      case Middle:
+      case ConeMiddle:
         extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionMedium);
         break;
-      case High:
+      case ConeHigh:
         extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionHigh);
-        break;
+        break; 
+      case CubeMiddle: 
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionMedium); 
+        break; 
+      case CubeHigh: 
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionHigh);
       case Custom:
         extension.setPosition(customArmExtension);
         break;
       case FeederStation:
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionFeederPosition); 
+      case FeederStationStore: 
         extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionFeederPosition);
     }
   }
@@ -115,5 +135,11 @@ public class Arm extends SubsystemBase {
 
   public boolean atExtensionPosition(){
     return extension.atPosition();
-  }
+  } 
+
+//   public void zeroElbow(){ 
+//     if(!isZeroized){
+//     elbow.percent(0.05); }
+//     isZeroized = false;
+//  }
 }

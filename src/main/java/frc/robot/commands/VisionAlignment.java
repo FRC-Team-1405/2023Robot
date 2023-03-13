@@ -46,7 +46,7 @@ public class VisionAlignment extends CommandBase {
     static{
        // loadConfigs();
     } 
-    private SwerveSubsystem swerve; 
+    private SwerveDrive swerve; 
     private PIDController xController; 
     private ProfiledPIDController zController;  
     private DoubleSupplier forwardSpeed; 
@@ -98,9 +98,7 @@ public class VisionAlignment extends CommandBase {
     }
 
     private void setPosition(double speed, double zSpeed) {
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(forwardSpeed.getAsDouble(), -speed, 0.0);
-        SwerveModuleState[] moduleStates = swerve.getKinematics().toSwerveModuleStates(chassisSpeeds);
-        swerve.setModuleStates(moduleStates);
+        swerve.driveSpeed(forwardSpeed.getAsDouble(), speed, 0.0, true);   
     }
 
     private void configPIDs(SwerveSubsystem swerve) {

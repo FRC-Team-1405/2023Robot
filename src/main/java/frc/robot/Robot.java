@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.VisionAlignment;
 import frc.robot.sensors.Limelight;
 import frc.robot.sensors.Limelight.LED;
+import frc.robot.subsystems.Arm;
 import frc.robot.tools.LEDs.MultiFunctionLED;
 
 /**
@@ -110,7 +111,8 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    MultiFunctionLED.setMode(0); // default to Battery display
+    MultiFunctionLED.setMode(0); // default to Battery display 
+      //m_robotContainer.arm.zeroElbow();
   }
 
   /** This function is called periodically during operator control. */
