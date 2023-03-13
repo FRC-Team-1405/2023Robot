@@ -6,7 +6,23 @@
       "/SmartDashboard/Auto/Step 1": "String Chooser",
       "/SmartDashboard/Auto/Step 2": "String Chooser",
       "/SmartDashboard/Auto/Step 3": "String Chooser",
-      "/SmartDashboard/Swerve/Start": "Command"
+      "/SmartDashboard/Claw/Close": "Command",
+      "/SmartDashboard/Claw/Open": "Command",
+      "/SmartDashboard/ConveyerBelt/Forward": "Command",
+      "/SmartDashboard/ConveyerBelt/Off": "Command",
+      "/SmartDashboard/Gate/Lower": "Command",
+      "/SmartDashboard/Gate/Raise": "Command",
+      "/SmartDashboard/Intake/Deploy": "Command",
+      "/SmartDashboard/Intake/Off": "Command",
+      "/SmartDashboard/Intake/On": "Command",
+      "/SmartDashboard/Intake/Retract": "Command",
+      "/SmartDashboard/Swerve/Start": "Command",
+      "/SmartDashboard/Testing/DriveBack": "Command"
+    }
+  },
+  "NetworkTables": {
+    "Transitory Values": {
+      "open": false
     }
   }
 }

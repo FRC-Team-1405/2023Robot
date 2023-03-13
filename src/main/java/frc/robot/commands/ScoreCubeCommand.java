@@ -15,18 +15,18 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.Position;
 
 /** Add your docs here. */
-public class ScoreCommand extends SequentialCommandGroup{
+public class ScoreCubeCommand extends SequentialCommandGroup{
 
 
-    public CommandBase setHighPostition = new InstantCommand( () -> { setTarget(Arm.Position.High);} );
-    public CommandBase setMiddlePosition = new InstantCommand( () -> { setTarget(Arm.Position.Middle);});
+    public CommandBase setCubeHighPostition = new InstantCommand( () -> { setTarget(Arm.Position.CubeHigh);} );
+    public CommandBase setCubeMiddlePosition = new InstantCommand( () -> { setTarget(Arm.Position.CubeMiddle);});
     public CommandBase setLowPostition = new InstantCommand( () -> { setTarget(Arm.Position.Low);} );
     public CommandBase setCustomPosition = new InstantCommand( () -> { setTarget(Arm.Position.Custom);});
 
     private void setTarget(Arm.Position position) {
         this.position = position;
-        SmartDashboard.putBoolean("Score/Position/High", position == Arm.Position.High);
-        SmartDashboard.putBoolean("Score/Position/Middle", position == Arm.Position.Middle);
+        SmartDashboard.putBoolean("Score/Position/High", position == Arm.Position.CubeHigh);
+        SmartDashboard.putBoolean("Score/Position/Middle", position == Arm.Position.CubeMiddle);
         SmartDashboard.putBoolean("Score/Position/Low", position == Arm.Position.Low);
         SmartDashboard.putBoolean("Score/Position/Custom", position == Arm.Position.Custom);
     }
@@ -38,7 +38,7 @@ public class ScoreCommand extends SequentialCommandGroup{
         return position;
     }
 
-    public ScoreCommand(Arm arm){
+    public ScoreCubeCommand(Arm arm){
         this.arm = arm;
         addRequirements(arm);
 
@@ -47,7 +47,7 @@ public class ScoreCommand extends SequentialCommandGroup{
                      new ArmExtension(this.arm, () -> { return this.position;} ) );    
     }
     
-    public ScoreCommand(Arm arm, Arm.Position position){ 
+    public ScoreCubeCommand(Arm arm, Arm.Position position){ 
         this.arm = arm;
         addRequirements(arm);
 

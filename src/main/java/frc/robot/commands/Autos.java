@@ -148,7 +148,7 @@ public final class Autos {
   
   private static CommandBase scoreHigh(Arm arm){
     return new SequentialCommandGroup(
-      new ScoreCommand(arm, Arm.Position.High),
+      new ScoreConeCommand(arm, Arm.Position.ConeHigh),
       new InstantCommand(()->{arm.openClaw();}, arm),
       new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
       new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)

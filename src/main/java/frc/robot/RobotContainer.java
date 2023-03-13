@@ -9,14 +9,13 @@ import frc.robot.commands.AutoBalance;
 import frc.robot.commands.Autos;
 import frc.robot.commands.AutoDrive;
 import frc.robot.commands.LEDManager;
-import frc.robot.commands.ScoreCommand;
+import frc.robot.commands.ScoreConeCommand;
+import frc.robot.commands.ScoreCubeCommand;
 import frc.robot.commands.SwerveDriveCommand;
 import frc.robot.commands.VisionAlignment;
-import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
-import frc.robot.tools.MathTools;
 import frc.robot.tools.SwerveType;
 import edu.wpi.first.math.util.Units;
 import frc.robot.tools.LEDs.BalanceLED;
@@ -28,12 +27,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -46,8 +43,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here... 
   private final SwerveDrive driveBase = new SwerveDrive();
-  private final Arm arm = new Arm();
+  public final Arm arm = new Arm();
   private final Intake intake = new Intake();
+  private boolean isCone;   
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController driver = new CommandXboxController(OperatorConstants.DriverControllerPort);
@@ -59,6 +57,8 @@ public class RobotContainer {
     configureBindings();
     ConfigShuffleboard();
     Autos.initAutoSelector();
+
+    isCone = true; 
 
     driveBase.setDefaultCommand(new SwerveDriveCommand(this::getXSpeed, 
                                                        this::getYSpeed, 
@@ -96,26 +96,40 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private enum InputType { Cube, Cone };
-  private InputType inputType = InputType.Cone;
-  private void setInputType(InputType type) {
-    inputType = type;
-    SmartDashboard.putBoolean("IntakeType/Cone", inputType == InputType.Cone);
-    SmartDashboard.putBoolean("IntakeType/Cube", inputType == InputType.Cube);
-  }
-  private void toggleInputType() {
-    if (inputType == InputType.Cone)
-      setInputType(InputType.Cube);
-    else
-      setInputType(InputType.Cone);
-  }
+  // private enum InputType { Cube, Cone };
+  //private InputType inputType = InputType.Cone;
+  // private void setInputType(InputType type) {
+  //   inputType = type;
+  //   SmartDashboard.putBoolean("IntakeType/Cone", inputType == InputType.Cone);
+  //   SmartDashboard.putBoolean("IntakeType/Cube", inputType == InputType.Cube);
+  // } 
+
+void setCone(){ 
+  isCone = true;
+} 
+
+void setCube(){ 
+  isCone = false; 
+}
+  // private void toggleInputType() {
+  //   if (inputType == InputType.Cone)
+  //     setInputType(InputType.Cube);
+  //   else
+  //     setInputType(InputType.Cone);
+  // }
 
   private void configureBindings() {
-    ScoreCommand scoreCommand = new ScoreCommand(arm);
-    operator.y().onTrue(scoreCommand.setHighPostition);
-    operator.b().onTrue(scoreCommand.setMiddlePosition);
-    operator.a().onTrue(scoreCommand.setLowPostition);
-    operator.x().onTrue(scoreCommand.setCustomPosition);
+    ScoreConeCommand scoreConeCommand = new ScoreConeCommand(arm); 
+    ScoreCubeCommand scoreCubeCommand = new ScoreCubeCommand(arm);
+    //setInputType(inputType); 
+    operator.y().onTrue(scoreConeCommand.setConeHighPostition);
+    operator.b().onTrue(scoreConeCommand.setConeMiddlePosition); 
+    operator.a().onTrue(scoreConeCommand.setLowPostition);
+    operator.x().onTrue(scoreConeCommand.setCustomPosition); 
+
+    
+    operator.y().onTrue(scoreCubeCommand.setCubeHighPostition);
+    operator.b().onTrue(scoreCubeCommand.setCubeMiddlePosition); 
 
     operator.back().onTrue( new InstantCommand( driveBase::resetGyro ) {
       public boolean runsWhenDisabled() {
@@ -146,15 +160,23 @@ public class RobotContainer {
         .onFalse( new InstantCommand(() -> { arm.closedClaw();}) );
     operator.povDown().onTrue( 
       new SequentialCommandGroup(
-          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-          new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.FeederStationStore);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+          new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.FeederStationStore);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
         )
-    );
+    ); 
+
+    operator.povLeft().onTrue(new InstantCommand(() -> setCone())); 
+    operator.povRight().onTrue(
+      new InstantCommand(() -> 
+      setCube()));
 
     CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
 
-    setInputType(inputType);
-    driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));
+    //setInputType(inputType);
+    driver.a().whileTrue(
+      new ParallelCommandGroup( visionAlignment, scoreConeCommand, new InstantCommand(intake::gateLower, intake))); 
+
+    driver.y().whileTrue(scoreCubeCommand); 
     driver.b().whileTrue( new SequentialCommandGroup( 
                               new AutoBalance.Balance(driveBase, this::getYSpeed),
                               new AutoBalance.DropTrigger(driveBase, this::getYSpeed),
@@ -162,20 +184,21 @@ public class RobotContainer {
                           );
     driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
                                              () -> { driveBase.parkingBrake(false);}));
-    driver.y().onTrue( new InstantCommand(() -> { toggleInputType(); }));
+    //driver.y().onTrue( new InstantCommand(() -> { toggleInputType(); }));
 
     driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); }));
-    driver.back().whileTrue(new InstantCommand(() -> { driveBase.enableFieldOriented(false);}));
+    driver.back().whileTrue(new InstantCommand(  () -> { driveBase.enableFieldOriented(false);}));
       
     
     driver.rightBumper()
       .onTrue(
         Commands.parallel(
           Commands.runOnce( ()-> {
-            intake.intakeDeploy();
+            intake.intakeDeploy(); 
             intake.intakeSuck();
-            if (inputType == InputType.Cone) { intake.conveyerBeltForward(); }
-            intake.twisterForward();},
+             intake.conveyerBeltForward();
+            intake.twisterForward();
+            intake.gateRaise();},
             intake),
           Commands.sequence(
             new InstantCommand(arm::openClaw),
@@ -188,7 +211,8 @@ public class RobotContainer {
             intake.intakeRetract();
             intake.intakeOff();
             intake.conveyerBeltOff();
-            intake.twisterOff();},
+            intake.twisterOff();
+            },
             intake),
           Commands.sequence(
             new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
