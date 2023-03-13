@@ -151,7 +151,7 @@ public class RobotContainer {
         )
     );
 
-    CommandBase visionAlignment = new VisionAlignment(this::getXSpeed, 0, driveBase); 
+    CommandBase visionAlignment = new VisionAlignment(this::getXSpeed,  this::getYSpeed, 0, driveBase); 
 
     setInputType(inputType);
     driver.a().whileTrue( new ParallelCommandGroup( visionAlignment, scoreCommand ));

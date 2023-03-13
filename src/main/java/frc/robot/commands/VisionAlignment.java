@@ -31,34 +31,46 @@ public class VisionAlignment extends CommandBase {
     private static double z_I = 0.0;
     private static double z_D = 0.0;
     public Limelight limelight = new Limelight();
-    
+    public static double fov_left = -27.0;
+    public static double fov_right = 27.0;
+
     private static byte visionPipeline = Constants.Limelight.Pipeline_Score;
+
     public static void setVisionPipeline(byte pipeline) {
         visionPipeline = pipeline;
-        SmartDashboard.putBoolean("VisionAlignment/TargetIsScore", visionPipeline == Constants.Limelight.Pipeline_Score);
+        SmartDashboard.putBoolean("VisionAlignment/TargetIsScore",
+                visionPipeline == Constants.Limelight.Pipeline_Score);
         SmartDashboard.putBoolean("VisionAlignment/TargetIsCone", visionPipeline == Constants.Limelight.Pipeline_Cone);
-        SmartDashboard.putBoolean("VisionAlignment/TargetIsCube", visionPipeline == Constants.Limelight.Pipeline_Cube);
+        SmartDashboard.putBoolean("VisionAlignment/TargetIsCube", visionPipeline == Constants.Limelight.Pipeline_Cube);        
     }
-    public static byte getVisionPipelien(){
+
+    public static byte getVisionPipelien() {
         return visionPipeline;
     }
-    
-    static{
-       // loadConfigs();
-    } 
-    private SwerveSubsystem swerve; 
-    private PIDController xController; 
-    private ProfiledPIDController zController;  
-    private DoubleSupplier forwardSpeed; 
 
-    public VisionAlignment(DoubleSupplier forwardSpeed, double angle, SwerveDrive swerve) {
+    static {
+        Preferences.initDouble("VisionAlignment/fov/left", -27.0);
+        fov_left = Preferences.getDouble("VisionAlignment/fov/left", -27.0);
+
+        Preferences.initDouble("VisionAlignment/fov/right", 27.0);
+        fov_right = Preferences.getDouble("VisionAlignment/fov/left", 27.0);
+        // loadConfigs();
+    }
+    private SwerveSubsystem swerve;
+    private PIDController xController;
+    private ProfiledPIDController zController;
+    private DoubleSupplier xSpeed;
+    private DoubleSupplier ySpeed;
+
+    public VisionAlignment(DoubleSupplier xSpeed, DoubleSupplier ySpeed, double angle, SwerveDrive swerve) {
         addRequirements(swerve);
         configPIDs(swerve);
         xController.setSetpoint(0);
         zController.setGoal(Units.degreesToRadians(angle));
-        this.forwardSpeed = forwardSpeed; 
-        this.swerve = swerve; 
-        zController.enableContinuousInput(-Math.PI, Math.PI); 
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
+        this.swerve = swerve;
+        zController.enableContinuousInput(-Math.PI, Math.PI);
         setVisionPipeline(visionPipeline);
     }
 
@@ -67,22 +79,22 @@ public class VisionAlignment extends CommandBase {
         zController.reset(swerve.getPose().getRotation().getRadians());
 
         limelight.setPipeline(visionPipeline);
-//        limelight.setLED(visionPipeline == Constants.Limelight.Pipeline_Score ? LED.On : LED.Off);
-//        limelight.setCameraMode(false);
+        // limelight.setLED(visionPipeline == Constants.Limelight.Pipeline_Score ?
+        // LED.On : LED.Off);
+        // limelight.setCameraMode(false);
     }
 
     public void execute() {
-        if (limelight.hasTarget()) {
-            double angle = limelight.getTX();
+        double angle = limelight.getTX();
+        if (limelight.hasTarget() && angle >= fov_left && angle <= fov_right) {
             double theta = swerve.getPose().getRotation().getRadians();
-            double yspeed = xController.calculate(-angle);
+            double ySpeed = xController.calculate(-angle);
             double zSpeed = zController.calculate(theta);
             SmartDashboard.putNumber("Error", xController.getPositionError());
-            SmartDashboard.putNumber("Speed", yspeed);
-            setPosition(yspeed, zSpeed);
-        }
-        else {
-            setPosition(0,0);
+            SmartDashboard.putNumber("Speed", ySpeed);
+            setPosition(xSpeed.getAsDouble(), ySpeed, zSpeed);
+        } else {
+            setPosition(xSpeed.getAsDouble(), ySpeed.getAsDouble(), 0);
         }
     }
 
@@ -91,14 +103,14 @@ public class VisionAlignment extends CommandBase {
     }
 
     public void end(boolean interrupted) {
-        setPosition(0.0, 0.0); 
+        setPosition(0.0, 0.0, 0.0);
         limelight.setPipeline(Constants.Limelight.Pipeline_Drive);
- //       limelight.setLED(LED.Off);
- //       limelight.setCameraMode(true);
+        // limelight.setLED(LED.Off);
+        // limelight.setCameraMode(true);
     }
 
-    private void setPosition(double speed, double zSpeed) {
-        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(forwardSpeed.getAsDouble(), -speed, 0.0);
+    private void setPosition(double xSpeed, double ySpeed, double zSpeed) {
+        ChassisSpeeds chassisSpeeds = new ChassisSpeeds(xSpeed, -ySpeed, 0.0);
         SwerveModuleState[] moduleStates = swerve.getKinematics().toSwerveModuleStates(chassisSpeeds);
         swerve.setModuleStates(moduleStates);
     }
