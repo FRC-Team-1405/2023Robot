@@ -85,6 +85,7 @@ public class Arm extends SubsystemBase {
         break; 
       case CubeHigh: 
         elbow.setPosition(Constants.Arm.ElbowPosition.ElbowCubeHigh);
+        break;
       case FeederStation: 
         elbow.setPosition(Constants.Arm.ElbowPosition.ElbowFeederStation); 
         break;
@@ -109,23 +110,21 @@ public class Arm extends SubsystemBase {
         extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionLow);
         break;
       case ConeMiddle:
+      case CubeMiddle: 
         extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionMedium);
         break;
       case ConeHigh:
-        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionHigh);
-        break; 
-      case CubeMiddle: 
-        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionMedium); 
-        break; 
       case CubeHigh: 
         extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionHigh);
+        break; 
       case Custom:
         extension.setPosition(customArmExtension);
         break;
       case FeederStation:
-        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionFeederPosition); 
       case FeederStationStore: 
-        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionFeederPosition);
+        extension.setPosition(Constants.Arm.ExtensionPosition.ExtensionFeederPosition); 
+        break;
+
     }
   }
 

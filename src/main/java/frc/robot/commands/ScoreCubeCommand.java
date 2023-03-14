@@ -89,7 +89,6 @@ public class ScoreCubeCommand extends SequentialCommandGroup{
             
         @Override
         public void initialize() {
-
             arm.setExtensionPosition(position.get());
         }
     

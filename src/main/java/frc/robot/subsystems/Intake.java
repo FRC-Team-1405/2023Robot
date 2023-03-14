@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -21,12 +22,12 @@ public class Intake extends SubsystemBase {
   private WPI_TalonSRX twister = new WPI_TalonSRX(Constants.DeviceID.Twister); 
   private boolean intakeIsDeployed = false;
 
-  //private FusionTimeofFlight gamePieceSensor = new FusionTimeofFlight(17); 
+  private FusionTimeofFlight gamePieceSensor = new FusionTimeofFlight(17); 
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run 
-    //gamePieceSensor.measure();
+      gamePieceSensor.measure();
   }
 
   private DoubleSolenoid intake = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 
