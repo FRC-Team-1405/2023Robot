@@ -307,7 +307,7 @@ void setCube(){
     // if (Math.abs(driver.getRightX()) <= 0.1)
     //   finalRotation = Math.abs(operator.getRightX()) <= 0.1 ? 0.0 : operator.getRightX() * .5 / (1.0 + operator.getRightTriggerAxis());
     // else
-      finalRotation = driver.getRightX() * .5 / (1.0 + driver.getRightTriggerAxis());
+      finalRotation = driver.getRightX() * .5 / (3.0 + driver.getRightTriggerAxis());
 
       if (Math.abs(finalRotation) < 0.1)
         finalRotation = 0.0;

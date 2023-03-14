@@ -5,20 +5,26 @@
 package frc.robot.sensors;
 
 import com.playingwithfusion.TimeOfFlight;
+import com.playingwithfusion.TimeOfFlight.RangingMode;
 
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
 public class FusionTimeofFlight {
 
-    public TimeOfFlight lidar; 
+    private TimeOfFlight lidar; 
+    private MedianFilter filter = new MedianFilter(5);
     
     public FusionTimeofFlight(int sensorID){ 
         lidar = new TimeOfFlight(sensorID);
+        lidar.setRangingMode(RangingMode.Medium, 20);
     }
 
-    public void measure(){ 
-        SmartDashboard.putNumber("lidar distance", lidar.getRange()); 
+    public double measure(){
+        double value = filter.calculate(lidar.getRange()); 
+        SmartDashboard.putNumber("lidar distance", value); 
+        return value;
     }
 
 }
