@@ -7,6 +7,11 @@ package frc.robot.commands;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.commands.AutoDrive;
+
+import java.security.AuthProvider;
+
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,7 +35,8 @@ public final class Autos {
     Score_High,
     Score_Middle,
     Score_Low,
-    Leave_Community,
+    Long_Exit,
+    Short_Exit,
     Drive_Over_Ramp,
     Balance_Forward,
     Balance_Backwards,
@@ -57,7 +63,8 @@ public final class Autos {
         
     step_2.setDefaultOption("Drive over ramp", AutoCommand.Drive_Over_Ramp);
     step_2.addOption("Backwards Balance", AutoCommand.Balance_Backwards);
-    step_2.addOption("Leave Community", AutoCommand.Leave_Community);
+    step_2.addOption("Short Exit", AutoCommand.Short_Exit);
+    step_2.addOption("Long Exit", AutoCommand.Long_Exit);
     step_2.addOption("Do nothing!", AutoCommand.Do_Nothing);
     SmartDashboard.putData("Auto/Step 2", step_2);
 
@@ -73,9 +80,9 @@ public final class Autos {
 
     Command cmd_1;
     switch (step_1.getSelected()){
-      case Score_High:    cmd_1 = scoreHigh(arm) ;    
+      case Score_High:    cmd_1 = scoreHigh(arm, swerve, intake) ;    
                           break;
-      case Score_Middle:  cmd_1 = scoreMiddle() ;  
+      case Score_Middle:  cmd_1 = scoreMiddle(arm, swerve, intake) ;  
                           break;
       case Score_Low:     cmd_1 = scoreLow(intake)  ;     
                           break;
@@ -89,7 +96,9 @@ public final class Autos {
                                 break;
         case Balance_Backwards: cmd_2 = BalanceAuto(swerve, false)  ;  
                                 break;
-        case Leave_Community:   cmd_2 = leaveCommunity(swerve, false);
+        case Short_Exit:   cmd_2 = shortExit(swerve, false);
+                                break;
+        case Long_Exit:   cmd_2 = longExit(swerve);
                                 break;
         default:                cmd_2 = Commands.print("Skipping Step 2") ; 
                                 break;
@@ -134,24 +143,45 @@ public final class Autos {
                              new RunCommand(()-> swerve.drive(0, 0, 0), swerve).withTimeout(2));
   }
 
-  private static CommandBase leaveCommunity(SwerveDrive swerve, boolean forward){
+  private static CommandBase shortExit(SwerveDrive swerve, boolean forward){
     return Commands.sequence(new RunCommand(()-> swerve.drive((forward ? 0.2 : -0.2), 0, 0), swerve).withTimeout(1));
   }
 
-  private static CommandBase scoreLow(Intake intake){
-    return intake.runEnd( intake::conveyerBeltEject, intake::conveyerBeltOff ).withTimeout(1);
+  private static CommandBase longExit(SwerveDrive swerve){
+    return new AutoDrive(swerve, 0.5, 0.0, Units.inchesToMeters(180.0)); 
+
   }
 
-  private static CommandBase scoreMiddle(){
-    return Commands.print("score in middle goal");
-  }
-  
-  private static CommandBase scoreHigh(Arm arm){
+  private static CommandBase scoreLow(Intake intake){
     return new SequentialCommandGroup(
-      new ScoreConeCommand(arm, Arm.Position.ConeHigh),
+                intake.runOnce( intake:: gateLower),
+                intake.run( intake::conveyerBeltEject).withTimeout(1),
+                intake.runOnce( intake::conveyerBeltOff),
+                intake.runOnce( intake::gateRaise)
+    );
+  }
+
+  private static CommandBase scoreMiddle(Arm arm, SwerveDrive swerve, Intake intake){
+    return new SequentialCommandGroup(
+      intake.runOnce( intake::gateLower ),
+      new ScoreConeCommand(arm, Arm.Position.ConeMiddle),
+      new AutoDrive( swerve, -.2, 0, Units.inchesToMeters(4)),
       new InstantCommand(()->{arm.openClaw();}, arm),
       new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-      new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+      new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm),
+      intake.runOnce( intake::gateRaise )
+    );
+  }
+  
+  private static CommandBase scoreHigh(Arm arm, SwerveDrive swerve, Intake intake){
+    return new SequentialCommandGroup(
+      intake.runOnce( intake::gateLower),
+      new ScoreConeCommand(arm, Arm.Position.ConeHigh), 
+      new AutoDrive(swerve, -.2, 0, Units.inchesToMeters(6)),
+      new InstantCommand(()->{arm.openClaw();}, arm),
+      new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+      new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm),
+      intake.runOnce( intake::gateRaise )
     );
   }
 

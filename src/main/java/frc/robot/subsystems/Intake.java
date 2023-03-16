@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.math.filter.MedianFilter;
@@ -16,7 +17,7 @@ import frc.robot.sensors.FusionTimeofFlight;
 
 public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
-  private WPI_TalonSRX upper = new WPI_TalonSRX(Constants.DeviceID.Intake);
+  private WPI_TalonFX upper = new WPI_TalonFX(Constants.DeviceID.Intake);
   private WPI_TalonSRX conveyerBelt = new WPI_TalonSRX(Constants.DeviceID.ConveyerBelt);
   //requiescant in pace, Twister
   private WPI_TalonSRX twister = new WPI_TalonSRX(Constants.DeviceID.Twister); 

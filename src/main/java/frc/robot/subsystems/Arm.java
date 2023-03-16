@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -14,8 +16,9 @@ import frc.robot.tools.MagicMotionHelper;
 
 public class Arm extends SubsystemBase {
   /** Creates a new Arm. */ 
-  public boolean isZeroized = false; 
-  public Arm() {
+  public Arm() { 
+   arm.setInverted(true); 
+   arm.setSensorPhase(true);
   }
 
   @Override
@@ -44,8 +47,9 @@ public class Arm extends SubsystemBase {
                                                     Constants.PnuematicID.ClawOpen, 
                                                     Constants.PnuematicID.ClawClosed);
 
-  private MagicMotionHelper elbow = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Elbow), 3);
-  private MagicMotionHelper extension = new MagicMotionHelper(new TalonSRX(Constants.DeviceID.Extension), 3);
+  private TalonFX arm = new TalonFX(Constants.DeviceID.Elbow);
+  private MagicMotionHelper elbow = new MagicMotionHelper(arm, 3);
+  private MagicMotionHelper extension = new MagicMotionHelper(new TalonFX(Constants.DeviceID.Extension), 3);
 
   public void openClaw() {
     claw.set(Value.kReverse);
@@ -61,6 +65,20 @@ public class Arm extends SubsystemBase {
     double currentPosition = elbow.getPosition();
     customArmAngle = currentPosition + positionAdjust;
     elbow.setPosition(customArmAngle);
+  }
+
+  private Boolean zeroizingArm = false;
+  public void zeroArm() {
+      arm.set(ControlMode.PercentOutput, -0.1);
+  }
+
+  public void armStop() {
+    elbow.stop();
+  } 
+
+  public void armClear(){ 
+    elbow.stop(); 
+    arm.setSelectedSensorPosition(0.0);
   }
 
   public void setElbowPosition(Position position){

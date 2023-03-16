@@ -210,11 +210,12 @@ public class SwerveDrive extends SubsystemBase implements SwerveSubsystem {
   return gyro.getAngle();
  } 
 
- private MedianFilter pitchFilter = new MedianFilter(15);
+// private MedianFilter pitchFilter = new MedianFilter(3);
  public double getPitch(){
   double pitch = gyro.getPitch() - pitchOffset ;
   SmartDashboard.putNumber("UnfilterdPitch", pitch);
-  return pitchFilter.calculate( gyro.getPitch() - pitchOffset );
+  return pitch;
+//  return pitchFilter.calculate( gyro.getPitch() - pitchOffset );
  } 
 
  public void brakeMode(){ 

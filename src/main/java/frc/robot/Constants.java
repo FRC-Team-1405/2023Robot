@@ -108,15 +108,15 @@ public final class Constants {
 
   public static class Arm {
     public static class ElbowPosition {
-      public static final int ElbowGrab = -0;
+      public static final int ElbowGrab = 0;
       public static final int ElbowHome = 0;
-      public static final int ElbowLow = -40000;
-      public static final int ElbowConeMedium = -90000;
-      public static final int ElbowConeHigh = -112000; 
-      public static final int ElbowCubeMedium = -85000; 
-      public static final int ElbowCubeHigh = -95000;
-      public static final int ElbowFeederStation = -93000; 
-      public static final int ElbowFeederStationStorage = -30000; 
+      public static final int ElbowLow = 40000;
+      public static final int ElbowConeMedium = 90000;
+      public static final int ElbowConeHigh = 112000; 
+      public static final int ElbowCubeMedium = 85000; 
+      public static final int ElbowCubeHigh = 95000;
+      public static final int ElbowFeederStation = 93000; 
+      public static final int ElbowFeederStationStorage = 30000; 
     }
 
     public static class ExtensionPosition {
@@ -131,8 +131,8 @@ public final class Constants {
 
   public static class Intake {
     static {
-      Preferences.initDouble("Intake/UpperSpeed", 0.25);
-      UpperSpeed = Preferences.getDouble("Intake/UpperSpeed", 0.25);
+      Preferences.initDouble("Intake/UpperSpeed", -0.5);
+      UpperSpeed = Preferences.getDouble("Intake/UpperSpeed", -0.5);
       Preferences.initDouble("Intake/LowerSpeed", -0.25);
       LowerSpeed = Preferences.getDouble("Intake/LowerSpeed", -0.25);
       Preferences.initDouble("ConveyerBelt/Speed", 0.5);

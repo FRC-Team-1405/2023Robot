@@ -16,6 +16,7 @@ import frc.robot.commands.VisionAlignment;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveDrive;
+import frc.robot.subsystems.Arm.Position;
 import frc.robot.tools.SwerveType;
 import edu.wpi.first.math.util.Units;
 import frc.robot.tools.LEDs.BalanceLED;
@@ -122,22 +123,24 @@ void setCube(){
     ScoreConeCommand scoreConeCommand = new ScoreConeCommand(arm); 
     ScoreCubeCommand scoreCubeCommand = new ScoreCubeCommand(arm);
     //setInputType(inputType); 
-    operator.y().onTrue(scoreConeCommand.setConeHighPostition);
-    operator.b().onTrue(scoreConeCommand.setConeMiddlePosition); 
-    operator.a().onTrue(scoreConeCommand.setLowPostition);
-    operator.x().onTrue(scoreConeCommand.setCustomPosition); 
+    operator.y().onTrue(scoreConeCommand.setConeHighPostition.andThen( scoreCubeCommand.setCubeHighPostition ));
+    operator.b().onTrue(scoreConeCommand.setConeMiddlePosition.andThen( scoreCubeCommand.setCubeMiddlePosition )); 
+    operator.a().onTrue(scoreConeCommand.setLowPostition.andThen( scoreCubeCommand.setLowPostition ));
+    operator.x().onTrue(scoreConeCommand.setCustomPosition.andThen( scoreCubeCommand.setCustomPosition )); 
 
     
-    operator.y().onTrue(scoreCubeCommand.setCubeHighPostition);
-    operator.b().onTrue(scoreCubeCommand.setCubeMiddlePosition); 
-
     operator.back().onTrue( new InstantCommand( driveBase::resetGyro ) {
       public boolean runsWhenDisabled() {
         return true;
       }    
     });
-    operator.start().onTrue( Commands.runOnce( () -> { System.out.println("Emergency Cancel"); }, arm, driveBase, intake));
-
+    // operator.start().onTrue( Commands.runOnce( () -> { System.out.println("Emergency Cancel"); }, arm, driveBase, intake));
+    operator.start()
+              .whileTrue( new SequentialCommandGroup(
+                              new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
+                              Commands.runOnce(arm::zeroArm))
+                          )
+              .onFalse( arm.runOnce(arm::armClear) );
 
     operator.leftTrigger(0.5).whileTrue(
       arm.run( ()->{ arm.adjustElbowPosition( (int) operator.getLeftY() * 1250 ); } )
@@ -146,10 +149,12 @@ void setCube(){
     operator.rightTrigger(0.5).whileTrue(
       arm.run( ()->{ arm.adjustExtensionPosition( (int) operator.getRightY() * 1250 ); } )
     );
-    operator.rightTrigger().onTrue(Commands.run(() -> {intake.gateLower();}, intake))
+    operator.rightBumper().onTrue(Commands.run(() -> {intake.gateLower();}, intake))
                            .onFalse(Commands.run(() -> {intake.gateRaise();}, intake));
-    operator.leftBumper().onTrue( intake.runOnce( intake::conveyerBeltEject) )
-                         .onFalse( intake.runOnce( intake::conveyerBeltOff ) );
+    operator.leftBumper().onTrue( intake.runOnce( intake::gateLower )
+                                        .andThen( intake.runOnce( intake::conveyerBeltEject) ) )
+                         .onFalse( intake.runOnce( intake::gateRaise )
+                                         .andThen( intake.runOnce( intake::conveyerBeltOff ) ) ) ;
 
     operator.povUp().onTrue( 
         new SequentialCommandGroup( 
@@ -307,7 +312,7 @@ void setCube(){
     // if (Math.abs(driver.getRightX()) <= 0.1)
     //   finalRotation = Math.abs(operator.getRightX()) <= 0.1 ? 0.0 : operator.getRightX() * .5 / (1.0 + operator.getRightTriggerAxis());
     // else
-      finalRotation = driver.getRightX() * .5 / (3.0 + driver.getRightTriggerAxis());
+      finalRotation = driver.getRightX() * .5 / (1.0 + (4.0 * driver.getRightTriggerAxis()));
 
       if (Math.abs(finalRotation) < 0.1)
         finalRotation = 0.0;

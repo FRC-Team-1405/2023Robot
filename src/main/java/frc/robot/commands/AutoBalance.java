@@ -6,25 +6,31 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.sensors.Limelight;
 import frc.robot.subsystems.SwerveDrive;
 import frc.robot.tools.LEDs.MultiFunctionLED;
 
 /** Add your docs here. */
 public class AutoBalance {
-    protected static final double PITCH_DELTA = 5.0;
+    protected static final double PITCH_DELTA = 1.0;
     protected static final double PITCH_DROP_DELTA = 0.1;
     protected static final double PITCH_BALANCED = 1.5;
+    protected static final int DROP_SETTLE = 5;
 
     public static CommandBase Command(SwerveDrive swerve, boolean forward) {
         return  new SequentialCommandGroup( new DriveToPitch(swerve, forward),
-                                            new DropTrigger(swerve, () -> { return 0.0;} ))
+                                            new DropTrigger(swerve, () -> { return 0.0;} ),
+                                            new AutoDrive(swerve, 0.5, 0.0, Units.inchesToMeters(24.0))
+                                            )
         .andThen(   new SequentialCommandGroup( new Balance(swerve, () -> { return 0.0; }),
                                                 new DropTrigger(swerve, () -> { return 0.0; }),
                                                 new BalanceTrigger(swerve, () -> { return 0.0; }) ).repeatedly()
-                );
+                )
+                ;
     }
 
     public static class Balance extends CommandBase {
@@ -45,12 +51,12 @@ public class AutoBalance {
             this(swerveDrive, 
                  speedSupplier,
                  new DoubleSupplier() {
-                    private double speed = 0.16;
+                    private double speed = 0.15;
                     public double getAsDouble(){
-                    if (speed <= 0.6) {
-                        return 0.06;
+                    if (speed <= 0.05) {
+                        return 0.05;
                     }
-                    speed -= 0.05;
+                    speed -= 0.1;
                     return speed;
                     }
                 });
@@ -75,9 +81,10 @@ public class AutoBalance {
                 speed = -speed;
             }
             
-            targetPitch = (Math.abs(swerveDrive.getPitch()) / 3.0); 
-            if (targetPitch < PITCH_BALANCED / 3.0) {
-                targetPitch = PITCH_BALANCED / 3.0;
+            targetPitch = (Math.abs(swerveDrive.getPitch()) - 1.0);
+//            targetPitch = (Math.abs(swerveDrive.getPitch()) / 3.0); 
+            if (targetPitch < PITCH_BALANCED ) {
+                targetPitch = PITCH_BALANCED;
             }
             swerveDrive.brakeMode();
         }
@@ -107,6 +114,7 @@ public class AutoBalance {
         private SwerveDrive swerveDrive;
         private DoubleSupplier ySpeed;
         private double pitch;
+        private int settleCount;
         public DropTrigger(SwerveDrive swerveDrive, DoubleSupplier speedSupplier){
             this.swerveDrive = swerveDrive;
             this.ySpeed = speedSupplier;
@@ -115,6 +123,7 @@ public class AutoBalance {
          @Override
          public void initialize() { 
             pitch = swerveDrive.getPitch();
+            settleCount = 0;
          }
               
          @Override
@@ -130,10 +139,13 @@ public class AutoBalance {
          public boolean isFinished() { 
             double new_pitch = swerveDrive.getPitch(); 
             if ( Math.abs(new_pitch - pitch) < PITCH_DROP_DELTA) {
-                return true;
+                settleCount += 1;
+            }
+            else {
+                settleCount = 0;
             }
             pitch = new_pitch;
-            return false; 
+            return (settleCount > DROP_SETTLE) ; 
          } 
      }
 
