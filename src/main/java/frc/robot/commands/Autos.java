@@ -37,7 +37,8 @@ public final class Autos {
     Score_Low,
     Long_Exit,
     Short_Exit,
-    Drive_Over_Ramp,
+    Drive_Over_Ramp, 
+    U_Turn,
     Balance_Forward,
     Balance_Backwards,
     Do_Nothing,
@@ -65,7 +66,8 @@ public final class Autos {
     step_2.addOption("Backwards Balance", AutoCommand.Balance_Backwards);
     step_2.addOption("Short Exit", AutoCommand.Short_Exit);
     step_2.addOption("Long Exit", AutoCommand.Long_Exit);
-    step_2.addOption("Do nothing!", AutoCommand.Do_Nothing);
+    step_2.addOption("Do nothing!", AutoCommand.Do_Nothing); 
+    step_2.addOption("U-Turn", AutoCommand.U_Turn); 
     SmartDashboard.putData("Auto/Step 2", step_2);
 
     step_3.setDefaultOption("Backwards Balance", AutoCommand.Balance_Backwards);
@@ -99,7 +101,9 @@ public final class Autos {
         case Short_Exit:   cmd_2 = shortExit(swerve, false);
                                 break;
         case Long_Exit:   cmd_2 = longExit(swerve);
-                                break;
+                                break; 
+        case U_Turn:      cmd_2 = uTurnRamp(swerve, false); 
+                                break; 
         default:                cmd_2 = Commands.print("Skipping Step 2") ; 
                                 break;
       }
@@ -139,8 +143,9 @@ public final class Autos {
 
   public static CommandBase DriveOverRamp(SwerveDrive swerve, boolean forward){
     return Commands.sequence(new DriveToPitch(swerve, forward), 
-                             new RunCommand(()-> swerve.drive((forward ? 0.2 : -0.2), 0, 0), swerve).withTimeout(2.5),
-                             new RunCommand(()-> swerve.drive(0, 0, 0), swerve).withTimeout(2));
+                             new AutoDrive(swerve, 0.5, 0, Units.inchesToMeters(78)),
+                             swerve.runOnce( () -> { swerve.drive(0, 0, 0); } )
+                            );
   }
 
   private static CommandBase shortExit(SwerveDrive swerve, boolean forward){
@@ -148,7 +153,8 @@ public final class Autos {
   }
 
   private static CommandBase longExit(SwerveDrive swerve){
-    return new AutoDrive(swerve, 0.5, 0.0, Units.inchesToMeters(180.0)); 
+    return Commands.sequence(new AutoDrive(swerve, 0.5, 0.0, Units.inchesToMeters(180.0)), 
+    new TurnToAngle(180, swerve)); 
 
   }
 
@@ -191,6 +197,11 @@ public final class Autos {
                                   () -> { return z; },
                                   swerve);
 
+  } 
+
+  public static CommandBase uTurnRamp(SwerveDrive swerve, boolean forward){ 
+    return Commands.sequence(new AutoDrive(swerve, 0.5, 0, Units.feetToMeters(16)), 
+    new AutoDrive(swerve, 0, 0.5, Units.feetToMeters(9.0)));
   }
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");

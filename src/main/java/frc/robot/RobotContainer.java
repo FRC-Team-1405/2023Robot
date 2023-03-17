@@ -277,9 +277,9 @@ void setCube(){
     double finalX;
 
     if ( pov == 0 )
-      finalX = -0.05;
+      finalX = -0.075;
     else if(pov == 180)
-      finalX = 0.05;
+      finalX = 0.075;
     else if (Math.abs(driver.getLeftY()) <= 0.1)
       finalX = 0.0;
     else

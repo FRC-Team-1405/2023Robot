@@ -38,7 +38,7 @@ public class SwerveModule extends SubsystemBase {
     // This state can only be set by restarting the robot code.
     BootState{
       public NormalizeWheels execute(SwerveModule module) {
-        if (SmartDashboard.getBoolean("SwervDrive/Normalize", false))
+        if (Preferences.getBoolean("SwervDrive/Normalize", false))
           return Normalize;
 
         return Ready;
@@ -47,8 +47,8 @@ public class SwerveModule extends SubsystemBase {
     // This state is entered only after boot when SwerveDrive/Normalize is true
     Normalize{
       public NormalizeWheels execute(SwerveModule module) {
-        module.NormolizeModule();
-        SmartDashboard.putBoolean("SwervDrive/Normalize", false);
+        module.NormalizeModule();
+        Preferences.setBoolean("SwervDrive/Normalize", false);
         return Ready;
       };
     },
@@ -61,8 +61,7 @@ public class SwerveModule extends SubsystemBase {
     public abstract NormalizeWheels execute(SwerveModule module);
 
     static {
-      if (!SmartDashboard.containsKey("SwervDrive/Normalize"))
-        SmartDashboard.putBoolean("SwervDrive/Normalize", false);
+        Preferences.initBoolean("SwervDrive/Normalize", false);
     };
   };
 
@@ -116,7 +115,7 @@ public class SwerveModule extends SubsystemBase {
   }
   /** Allows us to command the swervemodule to any given veloctiy and angle, ultimately coming from our
   joystick inputs. */
-  public void setDesiredState(SwerveModuleState desiredState, boolean brakeMode) {
+  public void setDesiredState(SwerveModuleState desiredState, boolean parkingbrake) {
       normalizeWheels = normalizeWheels.execute(this);
       if (normalizeWheels != NormalizeWheels.Ready)
         return;
@@ -145,7 +144,7 @@ public class SwerveModule extends SubsystemBase {
       final double target = AngleToEncoder(absolute + delta);
       
       if(driveSpeed == 0.0){ 
-        if (brakeMode == true){ 
+        if (parkingbrake == true){ 
           steeringMotor.set(ControlMode.MotionMagic, AngleToEncoder(-45)); 
         } else {
           steeringMotor.set(ControlMode.PercentOutput, 0.0);
@@ -191,7 +190,7 @@ public class SwerveModule extends SubsystemBase {
         return Math.IEEEremainder(deltaNeg,360);
   }
 
-  public void NormolizeModule() {
+  public void NormalizeModule() {
     offsets[steeringMotor.getDeviceID()-ENCODER_BASE] = getAngle();
     String prefKey = String.format("SwerveModule/Offset_%02d", steeringMotor.getDeviceID());
     Preferences.setDouble(prefKey, offsets[steeringMotor.getDeviceID()-ENCODER_BASE]);
