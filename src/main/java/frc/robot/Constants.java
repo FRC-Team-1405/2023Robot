@@ -111,8 +111,8 @@ public final class Constants {
       public static final int ElbowGrab = 0;
       public static final int ElbowHome = 0;
       public static final int ElbowLow = 40000;
-      public static final int ElbowConeMedium = 90000;
-      public static final int ElbowConeHigh = 112000; 
+      public static final int ElbowConeMedium = 100000;
+      public static final int ElbowConeHigh = 116000; 
       public static final int ElbowCubeMedium = 85000; 
       public static final int ElbowCubeHigh = 95000;
       public static final int ElbowFeederStation = 93000; 
