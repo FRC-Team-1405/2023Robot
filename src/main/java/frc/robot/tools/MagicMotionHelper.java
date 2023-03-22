@@ -13,7 +13,8 @@ import com.ctre.phoenix.motorcontrol.can.SlotConfiguration;
 public class MagicMotionHelper {
     private IMotorController motor;
     private double threshold;
-    private double pos;
+    private double targetPos;
+    private double startPos;
     private int settleCount;
     private int settleThreshold;
     public MagicMotionHelper(IMotorController motor, double threshold, int settle){
@@ -32,17 +33,18 @@ public class MagicMotionHelper {
     }
 
     public void setPosition(double pos){
-        this.pos=pos;
+        this.targetPos=pos;
         settleCount=0;
         motor.set(ControlMode.MotionMagic, pos);
+        startPos = motor.getSelectedSensorPosition(0);
     }
 
     public double getPosition(){
-        return pos;
+        return targetPos;
     }
 
     public boolean atPosition(){
-        if ( (Math.abs(motor.getActiveTrajectoryPosition() - pos) < threshold) 
+        if ( (Math.abs(motor.getActiveTrajectoryPosition() - targetPos) < threshold) 
             && (Math.abs(motor.getClosedLoopError(0)) < threshold) ){
             settleCount+=1; 
         } else {
@@ -51,6 +53,12 @@ public class MagicMotionHelper {
 
         return settleCount >= settleThreshold;
     }
+
+    public double getProgress(){
+        double pos = motor.getSelectedSensorPosition(0);
+        return Math.abs((targetPos - pos) / (targetPos - startPos));
+    }
+    
     public void stop() {
         motor.set(ControlMode.PercentOutput, 0.0);
     }

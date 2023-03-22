@@ -150,9 +150,17 @@ public class Arm extends SubsystemBase {
     return elbow.atPosition();
   }
 
+  public double elbowPositionProgress(){
+    return elbow.getProgress();
+  }
+
   public boolean atExtensionPosition(){
     return extension.atPosition();
-  } 
+  }
+  
+  public double extensionPositionProgress(){
+    return extension.getProgress();
+  }
 
 //   public void zeroElbow(){ 
 //     if(!isZeroized){
