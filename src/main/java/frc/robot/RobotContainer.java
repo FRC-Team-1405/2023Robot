@@ -207,8 +207,7 @@ void setCube(){
             intake),
           Commands.sequence(
             new InstantCommand(arm::openClaw),
-            new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-            new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+            ScoreConeCommand.ArmHomeCommand(arm)
       )))
       .onFalse(
         Commands.parallel(
@@ -230,8 +229,7 @@ void setCube(){
           //                         Commands.none(),
           //                         () -> { return scoreCommand.getTarget() == Arm.Position.Middle; }),
           new InstantCommand(arm::openClaw),
-          new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-          new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+          ScoreConeCommand.ArmHomeCommand(arm)
         )
     );
   }

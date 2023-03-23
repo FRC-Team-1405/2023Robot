@@ -173,8 +173,7 @@ public final class Autos {
       new ScoreConeCommand(arm, Arm.Position.ConeMiddle),
       new AutoDrive( swerve, -.2, 0, Units.inchesToMeters(4)),
       new InstantCommand(()->{arm.openClaw();}, arm),
-      new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-      new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm),
+      ScoreConeCommand.ArmHomeCommand(arm),
       intake.runOnce( intake::gateRaise )
     );
   }
@@ -185,8 +184,7 @@ public final class Autos {
       new ScoreConeCommand(arm, Arm.Position.ConeHigh), 
       new AutoDrive(swerve, -.2, 0, Units.inchesToMeters(6)),
       new InstantCommand(()->{arm.openClaw();}, arm),
-      new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-      new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm),
+      ScoreConeCommand.ArmHomeCommand(arm),
       intake.runOnce( intake::gateRaise )
     );
   }

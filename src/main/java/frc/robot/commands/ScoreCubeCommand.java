@@ -1,3 +1,4 @@
+
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -7,9 +8,11 @@ package frc.robot.commands;
 import java.security.cert.Extension;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Arm.Position;
@@ -43,8 +46,10 @@ public class ScoreCubeCommand extends SequentialCommandGroup{
         addRequirements(arm);
 
         addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
-                     new ArmAngle(this.arm, () -> { return this.position;} ),
-                     new ArmExtension(this.arm, () -> { return this.position;} ) );    
+                     new ParallelCommandGroup(
+                        new ArmAngle(this.arm, () -> { return this.position;}, false ),
+                        new ArmExtension(this.arm, () -> { return this.position;}, true ) 
+                     ));    
     }
     
     public ScoreCubeCommand(Arm arm, Arm.Position position){ 
@@ -55,22 +60,50 @@ public class ScoreCubeCommand extends SequentialCommandGroup{
         setTarget(position);
 
         addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
-                     new ArmAngle(this.arm, () -> { return this.position;} ),
-                     new ArmExtension(this.arm, () -> { return this.position;} ) );    
+                     new ParallelCommandGroup(
+                        new ArmAngle(this.arm, () -> { return this.position;}, false ),
+                        new ArmExtension(this.arm, () -> { return this.position;}, true ) 
+                     ));    
     }
 
+    static public CommandBase ArmHomeCommand(Arm arm){
+        return new ParallelCommandGroup(
+            new ScoreCubeCommand.ArmExtension(arm, () -> { return Position.Home;}, false ),
+            new ScoreCubeCommand.ArmAngle(arm, () -> { return Position.Home;}, true )
+         );    
+    }
     private static class ArmAngle extends CommandBase{
+        static {
+            Preferences.initDouble("ArmAngle Command", 0.25);
+            delayPercent = Preferences.getDouble("ArmAngle Command", 0.25);
+        }
+
         private Arm arm;
         private Supplier<Position> position;
-        public ArmAngle(Arm arm, Supplier<Position> position){
+        private boolean waiting = true;
+        private static double delayPercent = 0.25;
+        private boolean delayStart;
+        public ArmAngle(Arm arm, Supplier<Position> position, boolean delayStart){
             this.arm = arm;
             this.position = position;
+            this.delayStart = delayStart;
         }
     
         // Called when the command is initially scheduled.
         @Override
         public void initialize() {
-            arm.setElbowPosition(position.get());
+            if (!delayStart){
+                arm.setElbowPosition(position.get());
+                waiting = false;
+            }
+        }
+
+        @Override
+        public void execute(){
+            if (waiting && arm.elbowPositionProgress() > delayPercent){
+                arm.setElbowPosition(position.get());
+                waiting = false;
+            }
         }
 
         // Returns true when the command should end.
@@ -79,17 +112,38 @@ public class ScoreCubeCommand extends SequentialCommandGroup{
         return arm.atElbowPosition();
         }
     }
+
     private static class ArmExtension extends CommandBase{
+        static {
+            Preferences.initDouble("ArmExtension Command", 0.25);
+            delayPercent = Preferences.getDouble("ArmExtension Command", 0.25);
+        }
+
         private Arm arm;
         private Supplier<Position> position;
-        public ArmExtension(Arm arm, Supplier<Position> position){
+        private boolean waiting = true;
+        private static double delayPercent = 0.25;
+        private boolean delayStart;
+        public ArmExtension(Arm arm, Supplier<Position> position, boolean delayStart){
             this.arm = arm;
             this.position = position;
+            this.delayStart = delayStart;
         }
             
         @Override
         public void initialize() {
-            arm.setExtensionPosition(position.get());
+            if (!delayStart){
+                arm.setElbowPosition(position.get());
+                waiting = false;
+            }
+        }
+
+        @Override
+        public void execute(){
+            if (waiting && arm.extensionPositionProgress() > delayPercent){
+                arm.setExtensionPosition(position.get());
+                waiting = false;
+            }
         }
     
         // Returns true when the command should end.

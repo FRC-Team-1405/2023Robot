@@ -46,8 +46,8 @@ public class ScoreConeCommand extends SequentialCommandGroup{
 
         addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
                      new ParallelCommandGroup(
-                        new ArmAngle(this.arm, () -> { return this.position;} ),
-                        new ArmExtension(this.arm, () -> { return this.position;} ) 
+                        new ArmAngle(this.arm, () -> { return this.position;}, false),
+                        new ArmExtension(this.arm, () -> { return this.position;}, true ) 
                      ));    
     }
     
@@ -60,10 +60,17 @@ public class ScoreConeCommand extends SequentialCommandGroup{
 
         addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
                      new ParallelCommandGroup(
-                        new ArmAngle(this.arm, () -> { return this.position;} ),
-                        new ArmExtension(this.arm, () -> { return this.position;} ) 
+                        new ArmAngle(this.arm, () -> { return this.position;}, false ),
+                        new ArmExtension(this.arm, () -> { return this.position;}, true ) 
                      ));    
         }
+
+    static public CommandBase ArmHomeCommand(Arm arm){
+        return new ParallelCommandGroup(
+            new ScoreConeCommand.ArmExtension(arm, () -> { return Position.Home;}, false ),
+            new ScoreConeCommand.ArmAngle(arm, () -> { return Position.Home;}, true )
+         );    
+    }
 
     private static class ArmAngle extends CommandBase{
         static {
@@ -74,15 +81,19 @@ public class ScoreConeCommand extends SequentialCommandGroup{
         private Supplier<Position> position;
         private boolean waiting = false;
         private static double delayPercent = 0.25;
-        public ArmAngle(Arm arm, Supplier<Position> position){
+        private boolean delayStart;
+        public ArmAngle(Arm arm, Supplier<Position> position, boolean delayStart){
             this.arm = arm;
             this.position = position;
+            this.delayStart = delayStart;
         }
     
-        // Called when the command is initially scheduled.
         @Override
         public void initialize() {
-            arm.setElbowPosition(position.get());
+            if (!delayStart){
+                arm.setElbowPosition(position.get());
+                waiting = false;
+            }
         }
 
         @Override
@@ -102,18 +113,28 @@ public class ScoreConeCommand extends SequentialCommandGroup{
     private static class ArmExtension extends CommandBase{
         static {
             Preferences.initDouble("ArmExtension Command", 0.25);
-            delayPercent = Preferences.getDouble("ArmAngle Command", 0.25);
+            delayPercent = Preferences.getDouble("ArmExtension Command", 0.25);
         }
 
         private Arm arm;
         private Supplier<Position> position;
         private boolean waiting = true;
         private static double delayPercent = 0.25;
-        public ArmExtension(Arm arm, Supplier<Position> position){
+        private boolean delayStart;
+        public ArmExtension(Arm arm, Supplier<Position> position, boolean delayStart){
             this.arm = arm;
             this.position = position;
+            this.delayStart = delayStart;
         }
             
+        @Override
+        public void initialize() {
+            if (!delayStart){
+                arm.setElbowPosition(position.get());
+                waiting = false;
+            }
+        }
+
         @Override
         public void execute(){
             if (waiting && arm.extensionPositionProgress() > delayPercent){
