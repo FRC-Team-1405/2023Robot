@@ -55,6 +55,9 @@ public class MagicMotionHelper {
     }
 
     public double getProgress(){
+        if (settleCount > 0)
+            return 1.0;
+            
         double pos = motor.getSelectedSensorPosition(0);
         return Math.abs((targetPos - pos) / (targetPos - startPos));
     }
