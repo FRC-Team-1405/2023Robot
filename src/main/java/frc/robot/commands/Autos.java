@@ -153,7 +153,7 @@ public final class Autos {
   }
 
   private static CommandBase longExit(SwerveDrive swerve){
-    return Commands.sequence(new AutoDrive(swerve, 0.5, 0.0, Units.inchesToMeters(180.0)), 
+    return Commands.sequence(new AutoDrive(swerve, 3, 0.0, Units.inchesToMeters(180.0)), 
     new TurnToAngle(180, swerve)); 
 
   }
@@ -183,7 +183,7 @@ public final class Autos {
     return new SequentialCommandGroup(
       intake.runOnce( intake::gateLower),
       new ScoreConeCommand(arm, Arm.Position.ConeHigh), 
-      new AutoDrive(swerve, -.2, 0, Units.inchesToMeters(6)),
+      new AutoDrive(swerve, -0.5, 0, Units.inchesToMeters(6)),
       new InstantCommand(()->{arm.openClaw();}, arm),
       new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
       new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm),
