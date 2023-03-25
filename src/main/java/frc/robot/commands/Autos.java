@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -36,6 +37,7 @@ public final class Autos {
     Score_Middle,
     Score_Low,
     Long_Exit,
+    Pick_Up_Cube,
     Short_Exit,
     Drive_Over_Ramp, 
     U_Turn,
@@ -68,6 +70,7 @@ public final class Autos {
     step_2.addOption("Long Exit", AutoCommand.Long_Exit);
     step_2.addOption("Do nothing!", AutoCommand.Do_Nothing); 
     step_2.addOption("U-Turn", AutoCommand.U_Turn); 
+    step_2.addOption("Pick up cube", AutoCommand.Pick_Up_Cube);
     SmartDashboard.putData("Auto/Step 2", step_2);
 
     step_3.setDefaultOption("Backwards Balance", AutoCommand.Balance_Backwards);
@@ -104,6 +107,8 @@ public final class Autos {
                                 break; 
         case U_Turn:      cmd_2 = uTurnRamp(swerve, false); 
                                 break; 
+        case Pick_Up_Cube:      cmd_2 = pickUpCube(swerve, intake); 
+                                break;                         
         default:                cmd_2 = Commands.print("Skipping Step 2") ; 
                                 break;
       }
@@ -149,12 +154,11 @@ public final class Autos {
   }
 
   private static CommandBase shortExit(SwerveDrive swerve, boolean forward){
-    return Commands.sequence(new RunCommand(()-> swerve.drive((forward ? 0.2 : -0.2), 0, 0), swerve).withTimeout(1));
+    return new AutoDrive(swerve, 3, 0.0, Units.feetToMeters(8));
   }
 
   private static CommandBase longExit(SwerveDrive swerve){
-    return Commands.sequence(new AutoDrive(swerve, 0.5, 0.0, Units.inchesToMeters(180.0)), 
-    new TurnToAngle(180, swerve)); 
+    return new AutoDrive(swerve, 3, 0.0, Units.feetToMeters(14.85));
 
   }
 
@@ -183,7 +187,7 @@ public final class Autos {
     return new SequentialCommandGroup(
       intake.runOnce( intake::gateLower),
       new ScoreConeCommand(arm, Arm.Position.ConeHigh), 
-      new AutoDrive(swerve, -.2, 0, Units.inchesToMeters(6)),
+      new AutoDrive(swerve, -0.5, 0, Units.inchesToMeters(6)),
       new InstantCommand(()->{arm.openClaw();}, arm),
       new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
       new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm),
@@ -203,6 +207,13 @@ public final class Autos {
     return Commands.sequence(new AutoDrive(swerve, 0.5, 0, Units.feetToMeters(16)), 
     new AutoDrive(swerve, 0, 0.5, Units.feetToMeters(9.0)));
   }
+
+  public static CommandBase pickUpCube(SwerveDrive swerve, Intake intake){
+    return new ParallelCommandGroup( new AutoDrive(swerve, 3, 0.0, Units.feetToMeters(15.85)),
+                                      intake.runOnce(()-> {intake.intakeDeploy(); intake.intakeSuck();}))
+              .andThen( intake.runOnce(()-> {intake.intakeRetract(); intake.intakeOff();}));
+  }
+ 
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");
   }
