@@ -131,8 +131,8 @@ public final class Constants {
 
   public static class Intake {
     static {
-      Preferences.initDouble("Intake/UpperSpeed", -0.5);
-      UpperSpeed = Preferences.getDouble("Intake/UpperSpeed", -0.5);
+      Preferences.initDouble("Intake/UpperSpeed", -0.35);
+      UpperSpeed = Preferences.getDouble("Intake/UpperSpeed", -0.35);
       Preferences.initDouble("Intake/LowerSpeed", -0.25);
       LowerSpeed = Preferences.getDouble("Intake/LowerSpeed", -0.25);
       Preferences.initDouble("ConveyerBelt/Speed", 0.5);

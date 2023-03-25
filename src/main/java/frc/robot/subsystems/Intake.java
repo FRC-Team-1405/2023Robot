@@ -24,6 +24,7 @@ public class Intake extends SubsystemBase {
   private boolean intakeIsDeployed = false;
 
   private FusionTimeofFlight gamePieceSensor = new FusionTimeofFlight(17); 
+  
 
   @Override
   public void periodic() {

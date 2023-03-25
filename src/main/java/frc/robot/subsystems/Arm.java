@@ -4,31 +4,54 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.playingwithfusion.TimeOfFlight;
+import com.playingwithfusion.TimeOfFlight.RangingMode;
+
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants; 
+import frc.robot.sensors.FusionTimeofFlight;
 import frc.robot.tools.MagicMotionHelper;
 
 public class Arm extends SubsystemBase {
   /** Creates a new Arm. */ 
+   public TimeOfFlight gamePieceSensor; 
+   private boolean autoCloseClawEnabled = false; 
+   private double targetDistance = 0.0; 
+   public boolean isClawOpen = true; 
   public Arm() { 
+    Preferences.initDouble("Target Distance", targetDistance); 
    arm.setInverted(true); 
-   arm.setSensorPhase(true);
+   arm.setSensorPhase(true); 
+   gamePieceSensor.setRangingMode(RangingMode.Short, 50); 
+   gamePieceSensor.setRangeOfInterest(8, 8, 12, 12);
   }
+  
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // This method will be called once per scheduler run 
+    
+
+    if(autoCloseClawEnabled == true){ 
+    autoCloseClaw();
+    } 
+
+   // SmartDashboard.putNumber("Claw Lidar Value", distance);
   }
 
   public void onDisable(){
     elbow.stop();
-    extension.stop();
+    extension.stop(); 
   }
   public enum Position {
     Home,
@@ -52,12 +75,14 @@ public class Arm extends SubsystemBase {
   private MagicMotionHelper extension = new MagicMotionHelper(new TalonFX(Constants.DeviceID.Extension), 3);
 
   public void openClaw() {
-    claw.set(Value.kReverse);
+    claw.set(Value.kReverse); 
+    isClawOpen = true; 
   }
 
  
-  public void closedClaw() {
-    claw.set(Value.kForward);
+  public void closeClaw() {
+    claw.set(Value.kForward); 
+    isClawOpen = false; 
   }
 
   private double customArmAngle = Constants.Arm.ElbowPosition.ElbowHome;
@@ -153,10 +178,22 @@ public class Arm extends SubsystemBase {
   public boolean atExtensionPosition(){
     return extension.atPosition();
   } 
+  public void enableAutoClaw(){
+    autoCloseClawEnabled = true;
 
-//   public void zeroElbow(){ 
-//     if(!isZeroized){
-//     elbow.percent(0.05); }
-//     isZeroized = false;
-//  }
+  }
+  public void disableAutoClaw(){
+    autoCloseClawEnabled = false;
+  } 
+
+public void autoCloseClaw(){ 
+  double distance = gamePieceSensor.getRange();
+  if (distance < targetDistance){
+    closeClaw();
+  }
+} 
+
+public boolean getClawOpen(){ 
+  return isClawOpen; 
+}
 }

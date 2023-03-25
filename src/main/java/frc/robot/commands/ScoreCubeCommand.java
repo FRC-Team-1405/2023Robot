@@ -42,7 +42,7 @@ public class ScoreCubeCommand extends SequentialCommandGroup{
         this.arm = arm;
         addRequirements(arm);
 
-        addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
+        addCommands( new InstantCommand(() -> { arm.closeClaw(); }),
                      new ArmAngle(this.arm, () -> { return this.position;} ),
                      new ArmExtension(this.arm, () -> { return this.position;} ) );    
     }
@@ -54,7 +54,7 @@ public class ScoreCubeCommand extends SequentialCommandGroup{
         
         setTarget(position);
 
-        addCommands( new InstantCommand(() -> { arm.closedClaw(); }),
+        addCommands( new InstantCommand(() -> { arm.closeClaw(); }),
                      new ArmAngle(this.arm, () -> { return this.position;} ),
                      new ArmExtension(this.arm, () -> { return this.position;} ) );    
     }

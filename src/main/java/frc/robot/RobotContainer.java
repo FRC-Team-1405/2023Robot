@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -112,13 +113,6 @@ void setCone(){
 void setCube(){ 
   isCone = false; 
 }
-  // private void toggleInputType() {
-  //   if (inputType == InputType.Cone)
-  //     setInputType(InputType.Cube);
-  //   else
-  //     setInputType(InputType.Cone);
-  // }
-
   private void configureBindings() {
     ScoreConeCommand scoreConeCommand = new ScoreConeCommand(arm); 
     ScoreCubeCommand scoreCubeCommand = new ScoreCubeCommand(arm);
@@ -149,12 +143,10 @@ void setCube(){
     operator.rightTrigger(0.5).whileTrue(
       arm.run( ()->{ arm.adjustExtensionPosition( (int) operator.getRightY() * 1250 ); } )
     );
-    operator.rightBumper().onTrue(Commands.run(() -> {intake.gateLower();}, intake))
-                           .onFalse(Commands.run(() -> {intake.gateRaise();}, intake));
-    operator.leftBumper().onTrue( intake.runOnce( intake::gateLower )
-                                        .andThen( intake.runOnce( intake::conveyerBeltEject) ) )
-                         .onFalse( intake.runOnce( intake::gateRaise )
-                                         .andThen( intake.runOnce( intake::conveyerBeltOff ) ) ) ;
+    operator.rightBumper().onTrue(Commands.run(() -> {intake.intakePush();}, intake))
+                           .onFalse(new InstantCommand(intake::intakeOff, intake));
+
+    operator.leftBumper().onTrue(new ConditionalCommand(new InstantCommand(arm::closeClaw), new InstantCommand(arm::openClaw), arm::getClawOpen)); 
 
     operator.povUp().onTrue( 
         new SequentialCommandGroup( 
@@ -162,7 +154,7 @@ void setCube(){
             new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.FeederStation);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
             new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.FeederStation);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
         ))
-        .onFalse( new InstantCommand(() -> { arm.closedClaw();}) );
+        .onFalse( new InstantCommand(() -> { arm.closeClaw();}) );
     operator.povDown().onTrue( 
       new SequentialCommandGroup(
           new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.FeederStationStore);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
@@ -181,20 +173,20 @@ void setCube(){
     driver.a().whileTrue(
       new ParallelCommandGroup( visionAlignment, scoreConeCommand, new InstantCommand(intake::gateLower, intake))); 
 
+    driver.x().onTrue(Commands.parallel(Commands.runOnce(() -> {arm.openClaw();  intake.conveyerBeltForward();})));
     driver.y().whileTrue(scoreCubeCommand); 
     driver.b().whileTrue( new SequentialCommandGroup( 
                               new AutoBalance.Balance(driveBase, this::getYSpeed),
                               new AutoBalance.DropTrigger(driveBase, this::getYSpeed),
                               new AutoBalance.BalanceTrigger(driveBase, this::getYSpeed) ).repeatedly()
                           );
-    driver.x().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
+    driver.back().whileTrue( Commands.startEnd( () -> { driveBase.parkingBrake(true);},
                                              () -> { driveBase.parkingBrake(false);}));
     //driver.y().onTrue( new InstantCommand(() -> { toggleInputType(); }));
 
-    driver.start().whileTrue(new InstantCommand( () -> { driveBase.enableFieldOriented(true); }));
-    driver.back().whileTrue(new InstantCommand(  () -> { driveBase.enableFieldOriented(false);}));
-      
+    driver.start().whileTrue(new InstantCommand( () -> { driveBase.resetGyro(); }));
     
+   
     driver.rightBumper()
       .onTrue(
         Commands.parallel(
@@ -221,7 +213,7 @@ void setCube(){
             intake),
           Commands.sequence(
             new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Grab);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-            new InstantCommand(arm::closedClaw)
+            new InstantCommand(arm::closeClaw)
       )));
 
     driver.leftBumper().onTrue( 
@@ -251,7 +243,7 @@ void setCube(){
     SmartDashboard.putData("Intake/Deploy", intake.run( intake::intakeDeploy ));
     SmartDashboard.putData("Intake/Retract", intake.run( intake::intakeRetract ));
     SmartDashboard.putData("Claw/Open", arm.run( arm::openClaw ));
-    SmartDashboard.putData("Claw/Close", arm.run( arm::closedClaw ));
+    SmartDashboard.putData("Claw/Close", arm.run( arm::closeClaw ));
     SmartDashboard.putData("ConveyerBelt/Forward", intake.run( intake::conveyerBeltForward));
     SmartDashboard.putData("ConveyerBelt/Off", intake.run( intake::conveyerBeltOff));
     SmartDashboard.putData("Intake/On", intake.run( intake::intakeSuck));
@@ -319,7 +311,6 @@ void setCube(){
     
     return finalRotation;
   }
-
 }
 
 
