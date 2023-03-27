@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.playingwithfusion.TimeOfFlight;
 import com.playingwithfusion.TimeOfFlight.RangingMode;
 
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Preferences;
@@ -24,12 +25,18 @@ import frc.robot.tools.MagicMotionHelper;
 
 public class Arm extends SubsystemBase {
   /** Creates a new Arm. */ 
-   public TimeOfFlight gamePieceSensor; 
+   public TimeOfFlight gamePieceSensor = new TimeOfFlight(18); 
    private boolean autoCloseClawEnabled = false; 
-   private double targetDistance = 0.0; 
+   private double targetDistanceMax = 0.0; 
+   private double targetDistanceMin = 0.0; 
    public boolean isClawOpen = true; 
+   public double distance = 0.0; 
+   private MedianFilter filter = new MedianFilter(5);
   public Arm() { 
-    Preferences.initDouble("Target Distance", targetDistance); 
+    Preferences.initDouble("Target Distance Max", 300); 
+    targetDistanceMax = Preferences.getDouble("Target Distance Max", targetDistanceMax);
+    Preferences.initDouble("Target Distance Min", 200); 
+    targetDistanceMax = Preferences.getDouble("Target Distance Min", targetDistanceMax);
    arm.setInverted(true); 
    arm.setSensorPhase(true); 
    gamePieceSensor.setRangingMode(RangingMode.Short, 50); 
@@ -39,15 +46,8 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run 
-    
-
-    if(autoCloseClawEnabled == true){ 
-    autoCloseClaw();
-    } 
-
-   // SmartDashboard.putNumber("Claw Lidar Value", distance);
-  }
+    SmartDashboard.putNumber("Claw Lidar Realtime Value", filter.calculate(gamePieceSensor.getRange()));
+    }
 
   public void onDisable(){
     elbow.stop();
@@ -187,10 +187,13 @@ public class Arm extends SubsystemBase {
   } 
 
 public void autoCloseClaw(){ 
-  double distance = gamePieceSensor.getRange();
-  if (distance < targetDistance){
-    closeClaw();
-  }
+    // This method will be called once per scheduler run 
+    double distance = gamePieceSensor.getRange();
+    if (gamePieceSensor.getStatus() == TimeOfFlight.Status.Valid){
+      if (distance < targetDistanceMax && distance > targetDistanceMin){
+        closeClaw();
+      }
+    } 
 } 
 
 public boolean getClawOpen(){ 

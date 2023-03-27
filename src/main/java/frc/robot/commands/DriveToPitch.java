@@ -42,7 +42,7 @@ public class DriveToPitch extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-          swerve.drive((forward ? 0.5 : -0.5), 0.0, 0.0); 
+          swerve.drive((forward ? 0.75 : -0.75), 0.0, 0.0); 
   }
 
   // Called once the command ends or is interrupted.

@@ -24,7 +24,7 @@ public class AutoBalance {
     public static CommandBase Command(SwerveDrive swerve, boolean forward) {
         return  new SequentialCommandGroup( new DriveToPitch(swerve, forward),
                                             new DropTrigger(swerve, () -> { return 0.0;} ),
-                                            new AutoDrive(swerve, forward ? -0.5 : 0.5, 0.0, Units.inchesToMeters(24.0))
+                                            new AutoDrive(swerve, forward ? -3 : 3, 0.0, Units.inchesToMeters(40.0))
                                             )
         .andThen(   new SequentialCommandGroup( new Balance(swerve, () -> { return 0.0; }),
                                                 new DropTrigger(swerve, () -> { return 0.0; }),

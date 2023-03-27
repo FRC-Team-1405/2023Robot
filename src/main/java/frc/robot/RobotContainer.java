@@ -137,14 +137,14 @@ void setCube(){
               .onFalse( arm.runOnce(arm::armClear) );
 
     operator.leftTrigger(0.5).whileTrue(
-      arm.run( ()->{ arm.adjustElbowPosition( (int) operator.getLeftY() * 1250 ); } )
+      arm.run( ()->{ arm.adjustElbowPosition( (int) -operator.getLeftY() * 1250 ); } )
     );
 
     operator.rightTrigger(0.5).whileTrue(
-      arm.run( ()->{ arm.adjustExtensionPosition( (int) operator.getRightY() * 1250 ); } )
+      arm.run( ()->{ arm.adjustExtensionPosition( (int) -operator.getRightY() * 1250 ); } )
     );
-    operator.rightBumper().onTrue(Commands.run(() -> {intake.intakePush();}, intake))
-                           .onFalse(new InstantCommand(intake::intakeOff, intake));
+    operator.rightBumper().onTrue(Commands.parallel(Commands.runOnce(intake::intakePush), Commands.runOnce(intake::conveyerBeltBackward)))
+                           .onFalse(Commands.parallel(Commands.runOnce(intake::intakeOff), Commands.runOnce(intake::conveyerBeltOff)));
 
     operator.leftBumper().onTrue(new ConditionalCommand(new InstantCommand(arm::closeClaw), new InstantCommand(arm::openClaw), arm::getClawOpen)); 
 
@@ -152,9 +152,10 @@ void setCube(){
         new SequentialCommandGroup( 
           new InstantCommand(() -> { arm.openClaw();}),
             new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.FeederStation);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
-            new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.FeederStation);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm)
+            new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.FeederStation);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm), 
+            arm.run(arm::autoCloseClaw)
         ))
-        .onFalse( new InstantCommand(() -> { arm.closeClaw();}) );
+        .onFalse( arm.runOnce( arm::closeClaw ) );
     operator.povDown().onTrue( 
       new SequentialCommandGroup(
           new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.FeederStationStore);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
@@ -173,7 +174,7 @@ void setCube(){
     driver.a().whileTrue(
       new ParallelCommandGroup( visionAlignment, scoreConeCommand, new InstantCommand(intake::gateLower, intake))); 
 
-    driver.x().onTrue(Commands.parallel(Commands.runOnce(() -> {arm.openClaw();  intake.conveyerBeltForward();})));
+    driver.x().onTrue(Commands.parallel(Commands.runOnce(() -> {arm.openClaw();  intake.conveyerBeltForward();}))).onFalse(Commands.runOnce(intake::conveyerBeltOff));
     driver.y().whileTrue(scoreCubeCommand); 
     driver.b().whileTrue( new SequentialCommandGroup( 
                               new AutoBalance.Balance(driveBase, this::getYSpeed),
@@ -269,9 +270,9 @@ void setCube(){
     double finalX;
 
     if ( pov == 0 )
-      finalX = -0.075;
+      finalX = -0.05;
     else if(pov == 180)
-      finalX = 0.075;
+      finalX = 0.05;
     else if (Math.abs(driver.getLeftY()) <= 0.1)
       finalX = 0.0;
     else
@@ -304,7 +305,7 @@ void setCube(){
     // if (Math.abs(driver.getRightX()) <= 0.1)
     //   finalRotation = Math.abs(operator.getRightX()) <= 0.1 ? 0.0 : operator.getRightX() * .5 / (1.0 + operator.getRightTriggerAxis());
     // else
-      finalRotation = driver.getRightX() * .5 / (1.0 + (4.0 * driver.getRightTriggerAxis()));
+      finalRotation = driver.getRightX() * .75 / (1.0 + (4.0 * driver.getRightTriggerAxis()));
 
       if (Math.abs(finalRotation) < 0.1)
         finalRotation = 0.0;

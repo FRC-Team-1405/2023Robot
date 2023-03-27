@@ -154,11 +154,11 @@ public final class Autos {
   }
 
   private static CommandBase shortExit(SwerveDrive swerve, boolean forward){
-    return new AutoDrive(swerve, 3, 0.0, Units.feetToMeters(8));
+    return new AutoDrive(swerve, 3, 0.0, Units.feetToMeters(7));
   }
 
   private static CommandBase longExit(SwerveDrive swerve){
-    return new AutoDrive(swerve, 3, 0.0, Units.feetToMeters(14.85));
+    return new AutoDrive(swerve, 3, 0.0, Units.feetToMeters(11));
 
   }
 
@@ -175,7 +175,7 @@ public final class Autos {
     return new SequentialCommandGroup(
       intake.runOnce( intake::gateLower ),
       new ScoreConeCommand(arm, Arm.Position.ConeMiddle),
-      new AutoDrive( swerve, -.2, 0, Units.inchesToMeters(4)),
+      new AutoDrive( swerve, -.2, 0, Units.inchesToMeters(5)),
       new InstantCommand(()->{arm.openClaw();}, arm),
       new FunctionalCommand( () -> { arm.setExtensionPosition(Arm.Position.Home);}, () -> {}, intrupted -> {}, arm::atExtensionPosition, arm),
       new FunctionalCommand( () -> { arm.setElbowPosition(Arm.Position.Home);}, () -> {}, interupted -> {}, arm::atElbowPosition, arm),
@@ -209,9 +209,9 @@ public final class Autos {
   }
 
   public static CommandBase pickUpCube(SwerveDrive swerve, Intake intake){
-    return new ParallelCommandGroup( new AutoDrive(swerve, 3, 0.0, Units.feetToMeters(15.85)),
-                                      intake.runOnce(()-> {intake.intakeDeploy(); intake.intakeSuck();}))
-              .andThen( intake.runOnce(()-> {intake.intakeRetract(); intake.intakeOff();}));
+    return new ParallelCommandGroup( new AutoDrive(swerve, 3, 0.0, Units.feetToMeters(16.6)),
+                                      intake.run(()-> {intake.intakeDeploy(); intake.intakeSuck(); intake.conveyerBeltForward();}).withTimeout(10))
+              .andThen( intake.runOnce(()-> {intake.intakeRetract(); intake.intakeOff(); intake.conveyerBeltOff();}));
   }
  
   private Autos() {
