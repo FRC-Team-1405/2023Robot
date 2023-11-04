@@ -172,16 +172,23 @@ public class Arm extends SubsystemBase {
   }
 
   public boolean atElbowPosition(){
+    if(arm.isRevLimitSwitchClosed() == 1){
+      return true; 
+    }else{
     return elbow.atPosition();
+  }
   }
 
   public boolean atExtensionPosition(){
     return extension.atPosition();
   } 
+
+
   public void enableAutoClaw(){
     autoCloseClawEnabled = true;
 
   }
+
   public void disableAutoClaw(){
     autoCloseClawEnabled = false;
   } 
